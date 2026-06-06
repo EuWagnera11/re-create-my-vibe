@@ -7,7 +7,7 @@ import {
 
 import heroImg from "@/assets/hero-backpack.jpg";
 import kitImg from "@/assets/kit-escolar.jpg";
-import brasao from "@/assets/brasao-sp.png";
+import bmcellLogo from "@/assets/bmcell-logo.png.asset.json";
 import pLapis from "@/assets/prod-lapis.jpg";
 import pCaderno from "@/assets/prod-caderno.jpg";
 import pCaneta from "@/assets/prod-caneta.jpg";
