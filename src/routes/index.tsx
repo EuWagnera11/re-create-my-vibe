@@ -240,7 +240,7 @@ function Index() {
       <section className="border-y border-border bg-brand-gray">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-6 md:grid-cols-4">
           {[
-            { icon: Truck, t: "Entrega para toda SP", s: "Receba em sua escola ou endereço." },
+            { icon: Truck, t: "Entrega rápida", s: "Receba no endereço que preferir." },
             { icon: ShieldCheck, t: "Compra segura", s: "Ambiente 100% seguro e confiável." },
             { icon: CreditCard, t: "Formas de pagamento", s: "Cartão, Pix e Boleto com facilidade." },
             { icon: Headphones, t: "Atendimento", s: "Dúvidas? Fale com a gente!" },
@@ -265,8 +265,8 @@ function Index() {
           <div className="flex gap-3">
             <div className="h-16 w-12 shrink-0 rounded bg-brand-gray" />
             <div>
-              <div className="text-sm font-semibold">Calendário de Entregas 2024</div>
-              <p className="text-xs text-muted-foreground">Confira as datas de entrega dos kits escolares para cada região da cidade.</p>
+              <div className="text-sm font-semibold">Novidades 2026</div>
+              <p className="text-xs text-muted-foreground">Confira os lançamentos de materiais escolares para o ano letivo.</p>
               <a href="#" className="mt-1 inline-block text-xs font-semibold text-brand-navy hover:underline">Saiba mais →</a>
             </div>
           </div>
@@ -276,9 +276,9 @@ function Index() {
             <Users className="h-5 w-5" /> <span className="text-sm font-bold">QUEM SOMOS</span>
           </div>
           <p className="text-xs text-muted-foreground">
-            A loja Material Escolar SP é um canal oficial da Prefeitura de São Paulo, criado para oferecer materiais escolares de qualidade aos estudantes da rede municipal.
+            A BM Cell vende materiais escolares com qualidade e preço justo. Nosso compromisso é equipar os estudantes com tudo o que precisam para ir longe.
           </p>
-          <a href="#" className="mt-2 inline-block text-xs font-semibold text-brand-navy hover:underline">Conheça mais sobre o programa →</a>
+          <a href="#" className="mt-2 inline-block text-xs font-semibold text-brand-navy hover:underline">Conheça mais sobre a BM Cell →</a>
         </div>
         <div className="rounded-lg bg-brand-navy p-5 text-brand-navy-foreground">
           <div className="text-sm font-bold">DÚVIDAS?</div>
@@ -305,13 +305,13 @@ function Index() {
               <Facebook className="h-4 w-4" /><Instagram className="h-4 w-4" /><Youtube className="h-4 w-4" />
             </div>
           </div>
-          <FooterCol title="INSTITUCIONAL" items={["Sobre a SME", "Notícias", "Transparência", "Legislação", "Fale Conosco"]} />
+          <FooterCol title="INSTITUCIONAL" items={["Sobre a BM Cell", "Notícias", "Transparência", "Legislação", "Fale Conosco"]} />
           <FooterCol title="AJUDA" items={["Perguntas Frequentes", "Política de Privacidade", "Trocas e Devoluções", "Termos de Uso"]} />
           <div>
             <div className="mb-3 text-xs font-bold tracking-wider">ATENDIMENTO</div>
             <ul className="space-y-1.5 text-xs opacity-90">
               <li>📞 (11) 3397-0505</li>
-              <li>✉ atendimento@prefeitura.sp.gov.br</li>
+              <li>✉ atendimento@bmcell.com.br</li>
               <li>Seg a Sex das 8h às 17h</li>
             </ul>
           </div>
@@ -326,7 +326,7 @@ function Index() {
         </div>
         <div className="bg-brand-red">
           <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-2 text-xs text-brand-red-foreground">
-            <Lock className="h-3 w-3" /> prefeitura.sp.gov.br
+            <Lock className="h-3 w-3" /> bmcell.com.br
           </div>
         </div>
       </footer>
