@@ -60,7 +60,7 @@ function Index() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <span>🇧🇷</span>
-            <span>Site oficial da Prefeitura de São Paulo</span>
+            <span>BM Cell — Material Escolar</span>
           </div>
           <div className="hidden items-center gap-5 md:flex">
             <span className="flex items-center gap-1">Acessibilidade ♿</span>
