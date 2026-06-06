@@ -140,43 +140,8 @@ function Index() {
       </nav>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <img
-          src={heroImg}
-          alt="Mochila e materiais escolares"
-          width={1600}
-          height={900}
-          loading="eager"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/10" />
-        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 py-16 md:grid-cols-2 md:py-24">
-          <div>
-            <h1 className="text-4xl font-extrabold leading-tight text-brand-navy md:text-5xl">
-              Educação que
-              <br />
-              <span className="text-brand-red">transforma o futuro</span>
-            </h1>
-            <p className="mt-5 max-w-md text-base text-foreground/80">
-              Encontre tudo o que os estudantes precisam para aprender mais e ir mais longe.
-            </p>
-            <button className="mt-7 rounded-md bg-brand-navy px-7 py-3 text-sm font-bold text-brand-navy-foreground shadow-lg hover:opacity-90">
-              VER KITS ESCOLARES
-            </button>
-          </div>
-        </div>
-        <button className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/80 p-2 text-brand-navy hover:bg-white" aria-label="Anterior">
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <button className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/80 p-2 text-brand-navy hover:bg-white" aria-label="Próximo">
-          <ChevronRight className="h-5 w-5" />
-        </button>
-        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <span key={i} className={`h-2 w-2 rounded-full ${i === 1 ? "bg-brand-navy" : "bg-brand-navy/30"}`} />
-          ))}
-        </div>
-      </section>
+      <HeroCarousel />
+
 
       {/* Categorias */}
       <section className="mx-auto max-w-7xl px-4 py-10">
