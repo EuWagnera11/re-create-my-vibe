@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   Search, User, ShoppingCart, Menu, ChevronLeft, ChevronRight, Heart,
   Backpack, BookOpen, Pencil, Paperclip, Palette, FolderOpen, Book, Percent,
