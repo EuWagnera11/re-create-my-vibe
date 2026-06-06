@@ -19,10 +19,10 @@ import pEstojo from "@/assets/prod-estojo.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Material Escolar SP — Loja Oficial da Prefeitura de São Paulo" },
-      { name: "description", content: "Loja oficial de material escolar da rede municipal de São Paulo. Kits, mochilas, papelaria e mais." },
-      { property: "og:title", content: "Material Escolar SP" },
-      { property: "og:description", content: "Loja oficial de material escolar da rede municipal de São Paulo." },
+      { title: "BM Cell — Material Escolar" },
+      { name: "description", content: "A BM Cell vende materiais escolares com qualidade e preço justo. Kits, mochilas, papelaria e mais." },
+      { property: "og:title", content: "BM Cell — Material Escolar" },
+      { property: "og:description", content: "A BM Cell vende materiais escolares com qualidade e preço justo." },
       { property: "og:type", content: "website" },
     ],
   }),
