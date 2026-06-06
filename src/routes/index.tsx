@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   Search, User, ShoppingCart, Menu, ChevronLeft, ChevronRight, Heart,
   Backpack, BookOpen, Pencil, Paperclip, Palette, FolderOpen, Book, Percent,
@@ -139,43 +140,8 @@ function Index() {
       </nav>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <img
-          src={heroImg}
-          alt="Mochila e materiais escolares"
-          width={1600}
-          height={900}
-          loading="eager"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/10" />
-        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 py-16 md:grid-cols-2 md:py-24">
-          <div>
-            <h1 className="text-4xl font-extrabold leading-tight text-brand-navy md:text-5xl">
-              Educação que
-              <br />
-              <span className="text-brand-red">transforma o futuro</span>
-            </h1>
-            <p className="mt-5 max-w-md text-base text-foreground/80">
-              Encontre tudo o que os estudantes precisam para aprender mais e ir mais longe.
-            </p>
-            <button className="mt-7 rounded-md bg-brand-navy px-7 py-3 text-sm font-bold text-brand-navy-foreground shadow-lg hover:opacity-90">
-              VER KITS ESCOLARES
-            </button>
-          </div>
-        </div>
-        <button className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/80 p-2 text-brand-navy hover:bg-white" aria-label="Anterior">
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <button className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/80 p-2 text-brand-navy hover:bg-white" aria-label="Próximo">
-          <ChevronRight className="h-5 w-5" />
-        </button>
-        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <span key={i} className={`h-2 w-2 rounded-full ${i === 1 ? "bg-brand-navy" : "bg-brand-navy/30"}`} />
-          ))}
-        </div>
-      </section>
+      <HeroCarousel />
+
 
       {/* Categorias */}
       <section className="mx-auto max-w-7xl px-4 py-10">
@@ -376,5 +342,106 @@ function FooterCol({ title, items }: { title: string; items: string[] }) {
         {items.map((i) => <li key={i}><a href="#" className="hover:underline">{i}</a></li>)}
       </ul>
     </div>
+  );
+}
+
+const heroSlides = [
+  {
+    img: heroImg,
+    eyebrow: "VOLTA ÀS AULAS",
+    title: "Educação que",
+    titleAccent: "transforma o futuro",
+    text: "Encontre tudo o que os estudantes precisam para aprender mais e ir mais longe.",
+    cta: "VER KITS ESCOLARES",
+  },
+  {
+    img: kitImg,
+    eyebrow: "KITS COMPLETOS",
+    title: "Kit Escolar 2026",
+    titleAccent: "pronto para o ano letivo",
+    text: "Mochila, cadernos, lápis, canetas e muito mais — tudo em um só lugar.",
+    cta: "MONTAR MEU KIT",
+  },
+  {
+    img: pMochila,
+    eyebrow: "OFERTAS DA SEMANA",
+    title: "Até 30% OFF",
+    titleAccent: "em mochilas e estojos",
+    text: "Aproveite descontos especiais em itens selecionados por tempo limitado.",
+    cta: "APROVEITAR AGORA",
+  },
+];
+
+function HeroCarousel() {
+  const [i, setI] = useState(0);
+  const total = heroSlides.length;
+  const go = (n: number) => setI((n + total) % total);
+
+  useEffect(() => {
+    const t = setInterval(() => setI((c) => (c + 1) % total), 6000);
+    return () => clearInterval(t);
+  }, [total]);
+
+  return (
+    <section className="relative overflow-hidden">
+      <div className="relative h-[420px] md:h-[480px]">
+        {heroSlides.map((s, idx) => (
+          <div
+            key={idx}
+            className={`absolute inset-0 transition-opacity duration-700 ${idx === i ? "opacity-100" : "pointer-events-none opacity-0"}`}
+          >
+            <img
+              src={s.img}
+              alt=""
+              width={1600}
+              height={900}
+              loading="eager"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/10" />
+            <div className="relative mx-auto grid h-full max-w-7xl grid-cols-1 items-center gap-8 px-4 md:grid-cols-2">
+              <div>
+                <span className="inline-block rounded-full bg-brand-red px-3 py-1 text-[10px] font-bold tracking-widest text-brand-red-foreground">
+                  {s.eyebrow}
+                </span>
+                <h1 className="mt-4 text-4xl font-extrabold leading-tight text-brand-navy md:text-5xl">
+                  {s.title}
+                  <br />
+                  <span className="text-brand-red">{s.titleAccent}</span>
+                </h1>
+                <p className="mt-5 max-w-md text-base text-foreground/80">{s.text}</p>
+                <button className="mt-7 rounded-md bg-brand-navy px-7 py-3 text-sm font-bold text-brand-navy-foreground shadow-lg hover:opacity-90">
+                  {s.cta}
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button
+        onClick={() => go(i - 1)}
+        className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/80 p-2 text-brand-navy hover:bg-white"
+        aria-label="Anterior"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button
+        onClick={() => go(i + 1)}
+        className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/80 p-2 text-brand-navy hover:bg-white"
+        aria-label="Próximo"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+        {heroSlides.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setI(idx)}
+            aria-label={`Slide ${idx + 1}`}
+            className={`h-2 rounded-full transition-all ${idx === i ? "w-6 bg-brand-navy" : "w-2 bg-brand-navy/30"}`}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
