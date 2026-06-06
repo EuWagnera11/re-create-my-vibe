@@ -7,7 +7,7 @@ import {
 
 import heroImg from "@/assets/hero-backpack.jpg";
 import kitImg from "@/assets/kit-escolar.jpg";
-import brasao from "@/assets/brasao-sp.png";
+import bmcellLogo from "@/assets/bmcell-logo.png.asset.json";
 import pLapis from "@/assets/prod-lapis.jpg";
 import pCaderno from "@/assets/prod-caderno.jpg";
 import pCaneta from "@/assets/prod-caneta.jpg";
@@ -76,18 +76,13 @@ function Index() {
       {/* Logo + Search + Account + Cart */}
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-4">
-          <div className="flex items-center gap-3">
-            <img src={brasao} alt="Brasão de São Paulo" width={56} height={56} loading="eager" className="h-14 w-14 object-contain" />
-            <div className="leading-tight">
-              <div className="text-sm font-bold text-brand-navy">CIDADE DE</div>
-              <div className="text-lg font-extrabold text-brand-navy">SÃO PAULO</div>
-              <div className="text-[10px] font-semibold tracking-widest text-brand-navy">EDUCAÇÃO</div>
-            </div>
-          </div>
+          <a href="/" className="flex items-center gap-3">
+            <img src={bmcellLogo.url} alt="BM Cell" width={140} height={72} loading="eager" className="h-14 w-auto object-contain" />
+          </a>
 
           <div className="hidden border-l border-border pl-4 md:block">
-            <div className="text-xl font-bold text-brand-navy">Material Escolar SP</div>
-            <div className="text-xs text-muted-foreground">Loja oficial de material escolar<br />da rede municipal de São Paulo</div>
+            <div className="text-xl font-bold text-brand-navy">Material Escolar BM Cell</div>
+            <div className="text-xs text-muted-foreground">Tudo para o ano letivo<br />kits, papelaria e mochilas</div>
           </div>
 
           <div className="order-last flex-1 md:order-none">
@@ -144,8 +139,17 @@ function Index() {
       </nav>
 
       {/* Hero */}
-      <section className="relative bg-gradient-to-r from-[oklch(0.95_0.01_260)] to-[oklch(0.92_0.01_260)]">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 py-10 md:grid-cols-2 md:py-16">
+      <section className="relative overflow-hidden">
+        <img
+          src={heroImg}
+          alt="Mochila e materiais escolares"
+          width={1600}
+          height={900}
+          loading="eager"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/10" />
+        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 py-16 md:grid-cols-2 md:py-24">
           <div>
             <h1 className="text-4xl font-extrabold leading-tight text-brand-navy md:text-5xl">
               Educação que
@@ -153,20 +157,17 @@ function Index() {
               <span className="text-brand-red">transforma o futuro</span>
             </h1>
             <p className="mt-5 max-w-md text-base text-foreground/80">
-              Encontre tudo o que os estudantes da rede municipal de SP precisam para aprender mais e ir mais longe.
+              Encontre tudo o que os estudantes precisam para aprender mais e ir mais longe.
             </p>
-            <button className="mt-7 rounded-md bg-brand-navy px-7 py-3 text-sm font-bold text-brand-navy-foreground hover:opacity-90">
+            <button className="mt-7 rounded-md bg-brand-navy px-7 py-3 text-sm font-bold text-brand-navy-foreground shadow-lg hover:opacity-90">
               VER KITS ESCOLARES
             </button>
           </div>
-          <div className="relative">
-            <img src={heroImg} alt="Mochila e materiais escolares" width={1280} height={720} loading="eager" className="w-full object-contain" />
-          </div>
         </div>
-        <button className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/70 p-2 text-brand-navy hover:bg-white" aria-label="Anterior">
+        <button className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/80 p-2 text-brand-navy hover:bg-white" aria-label="Anterior">
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <button className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/70 p-2 text-brand-navy hover:bg-white" aria-label="Próximo">
+        <button className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full border border-brand-navy/30 bg-white/80 p-2 text-brand-navy hover:bg-white" aria-label="Próximo">
           <ChevronRight className="h-5 w-5" />
         </button>
         <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
@@ -195,19 +196,44 @@ function Index() {
       </section>
 
       {/* Banners */}
-      <section className="mx-auto grid max-w-7xl grid-cols-1 gap-4 px-4 md:grid-cols-2">
-        <div className="relative overflow-hidden rounded-lg bg-brand-navy p-7 text-brand-navy-foreground">
-          <h3 className="text-2xl font-extrabold leading-tight">KIT ESCOLAR<br />DA REDE MUNICIPAL</h3>
-          <p className="mt-3 max-w-[55%] text-sm opacity-90">Kits completos com tudo o que o estudante precisa para o ano letivo.</p>
-          <button className="mt-5 rounded-md bg-white px-5 py-2 text-xs font-bold text-brand-navy hover:opacity-90">CONFIRA</button>
-          <img src={kitImg} alt="Kit escolar" width={300} height={200} loading="eager" className="absolute bottom-0 right-2 h-[85%] w-auto object-contain" />
+      <section className="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 md:grid-cols-2">
+        <div className="group relative h-56 overflow-hidden rounded-xl bg-gradient-to-br from-brand-navy to-[oklch(0.22_0.12_265)] p-7 text-brand-navy-foreground shadow-md transition hover:shadow-xl">
+          <div className="relative z-10 max-w-[60%]">
+            <span className="inline-block rounded-full bg-brand-red px-2.5 py-0.5 text-[10px] font-bold tracking-wider">NOVO</span>
+            <h3 className="mt-3 text-2xl font-extrabold leading-tight">
+              KIT ESCOLAR
+              <br />
+              <span className="text-brand-yellow">DA REDE MUNICIPAL</span>
+            </h3>
+            <p className="mt-2 text-sm opacity-90">Kits completos com tudo para o ano letivo.</p>
+            <button className="mt-4 rounded-md bg-white px-5 py-2 text-xs font-bold text-brand-navy transition hover:bg-brand-yellow">CONFIRA →</button>
+          </div>
+          <img
+            src={kitImg}
+            alt="Kit escolar"
+            width={300}
+            height={200}
+            loading="eager"
+            className="absolute -bottom-2 -right-2 h-[110%] w-auto object-contain drop-shadow-2xl transition group-hover:scale-105"
+          />
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/5" />
         </div>
-        <div className="relative overflow-hidden rounded-lg bg-brand-yellow p-7 text-brand-yellow-foreground">
-          <h3 className="text-2xl font-extrabold leading-tight">OFERTAS<br /><span className="text-brand-red">DA SEMANA</span></h3>
-          <p className="mt-3 max-w-[55%] text-sm">Descontos especiais em materiais selecionados.</p>
-          <button className="mt-5 rounded-md bg-brand-navy px-5 py-2 text-xs font-bold text-brand-navy-foreground hover:opacity-90">APROVEITE</button>
-          <div className="absolute right-6 top-1/2 flex h-32 w-32 -translate-y-1/2 items-center justify-center rounded-full bg-brand-red text-center text-brand-red-foreground"
-               style={{ clipPath: "polygon(50% 0%, 61% 12%, 75% 6%, 79% 21%, 94% 22%, 90% 37%, 100% 50%, 90% 63%, 94% 78%, 79% 79%, 75% 94%, 61% 88%, 50% 100%, 39% 88%, 25% 94%, 21% 79%, 6% 78%, 10% 63%, 0% 50%, 10% 37%, 6% 22%, 21% 21%, 25% 6%, 39% 12%)" }}>
+
+        <div className="group relative h-56 overflow-hidden rounded-xl bg-gradient-to-br from-brand-yellow to-[oklch(0.78_0.15_70)] p-7 text-brand-yellow-foreground shadow-md transition hover:shadow-xl">
+          <div className="relative z-10 max-w-[60%]">
+            <span className="inline-block rounded-full bg-brand-navy px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-brand-navy-foreground">PROMO</span>
+            <h3 className="mt-3 text-2xl font-extrabold leading-tight">
+              OFERTAS
+              <br />
+              <span className="text-brand-red">DA SEMANA</span>
+            </h3>
+            <p className="mt-2 text-sm">Descontos em materiais selecionados.</p>
+            <button className="mt-4 rounded-md bg-brand-navy px-5 py-2 text-xs font-bold text-brand-navy-foreground transition hover:bg-brand-red">APROVEITE →</button>
+          </div>
+          <div
+            className="absolute right-6 top-1/2 flex h-32 w-32 -translate-y-1/2 items-center justify-center rounded-full bg-brand-red text-center text-brand-red-foreground shadow-lg transition group-hover:rotate-12"
+            style={{ clipPath: "polygon(50% 0%, 61% 12%, 75% 6%, 79% 21%, 94% 22%, 90% 37%, 100% 50%, 90% 63%, 94% 78%, 79% 79%, 75% 94%, 61% 88%, 50% 100%, 39% 88%, 25% 94%, 21% 79%, 6% 78%, 10% 63%, 0% 50%, 10% 37%, 6% 22%, 21% 21%, 25% 6%, 39% 12%)" }}
+          >
             <div>
               <div className="text-xs font-bold">ATÉ</div>
               <div className="text-3xl font-extrabold leading-none">30%</div>
@@ -305,11 +331,10 @@ function Index() {
       <footer className="bg-brand-navy text-brand-navy-foreground">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-10 md:grid-cols-5">
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2">
-              <img src={brasao} alt="" width={40} height={40} loading="eager" className="h-10 w-10 object-contain" />
-              <div className="text-xs font-extrabold leading-tight">CIDADE DE<br />SÃO PAULO<br /><span className="text-[9px] tracking-widest">EDUCAÇÃO</span></div>
+            <div className="flex items-center gap-2 rounded-md bg-white p-2">
+              <img src={bmcellLogo.url} alt="BM Cell" width={120} height={48} loading="eager" className="h-10 w-auto object-contain" />
             </div>
-            <p className="mt-3 text-xs opacity-80">Secretaria Municipal de Educação. Todos os direitos reservados.</p>
+            <p className="mt-3 text-xs opacity-80">BM Cell — Material Escolar. Todos os direitos reservados.</p>
             <div className="mt-3 flex gap-3 opacity-90">
               <Facebook className="h-4 w-4" /><Instagram className="h-4 w-4" /><Youtube className="h-4 w-4" />
             </div>
