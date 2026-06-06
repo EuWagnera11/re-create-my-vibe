@@ -76,18 +76,13 @@ function Index() {
       {/* Logo + Search + Account + Cart */}
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-4">
-          <div className="flex items-center gap-3">
-            <img src={brasao} alt="Brasão de São Paulo" width={56} height={56} loading="eager" className="h-14 w-14 object-contain" />
-            <div className="leading-tight">
-              <div className="text-sm font-bold text-brand-navy">CIDADE DE</div>
-              <div className="text-lg font-extrabold text-brand-navy">SÃO PAULO</div>
-              <div className="text-[10px] font-semibold tracking-widest text-brand-navy">EDUCAÇÃO</div>
-            </div>
-          </div>
+          <a href="/" className="flex items-center gap-3">
+            <img src={bmcellLogo.url} alt="BM Cell" width={140} height={72} loading="eager" className="h-14 w-auto object-contain" />
+          </a>
 
           <div className="hidden border-l border-border pl-4 md:block">
-            <div className="text-xl font-bold text-brand-navy">Material Escolar SP</div>
-            <div className="text-xs text-muted-foreground">Loja oficial de material escolar<br />da rede municipal de São Paulo</div>
+            <div className="text-xl font-bold text-brand-navy">Material Escolar BM Cell</div>
+            <div className="text-xs text-muted-foreground">Tudo para o ano letivo<br />kits, papelaria e mochilas</div>
           </div>
 
           <div className="order-last flex-1 md:order-none">
