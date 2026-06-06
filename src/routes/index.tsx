@@ -300,11 +300,10 @@ function Index() {
       <footer className="bg-brand-navy text-brand-navy-foreground">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-10 md:grid-cols-5">
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2">
-              <img src={brasao} alt="" width={40} height={40} loading="eager" className="h-10 w-10 object-contain" />
-              <div className="text-xs font-extrabold leading-tight">CIDADE DE<br />SÃO PAULO<br /><span className="text-[9px] tracking-widest">EDUCAÇÃO</span></div>
+            <div className="flex items-center gap-2 rounded-md bg-white p-2">
+              <img src={bmcellLogo.url} alt="BM Cell" width={120} height={48} loading="eager" className="h-10 w-auto object-contain" />
             </div>
-            <p className="mt-3 text-xs opacity-80">Secretaria Municipal de Educação. Todos os direitos reservados.</p>
+            <p className="mt-3 text-xs opacity-80">BM Cell — Material Escolar. Todos os direitos reservados.</p>
             <div className="mt-3 flex gap-3 opacity-90">
               <Facebook className="h-4 w-4" /><Instagram className="h-4 w-4" /><Youtube className="h-4 w-4" />
             </div>
