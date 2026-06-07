@@ -53,6 +53,37 @@ const products = [
 ];
 
 function Index() {
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutProduct, setCheckoutProduct] = useState<{ name: string; price: string } | null>(null);
+  const [form, setForm] = useState({
+    operadora: "PERSONAL CARD POS-PAGO",
+    valor: "",
+    condicao: "",
+    emailConfirmacao: "",
+    emailLink: "",
+    codigoPedido: "",
+  });
+
+  const openCheckout = (product?: { name: string; price: string }) => {
+    if (product) {
+      setCheckoutProduct(product);
+      setForm((f) => ({ ...f, valor: product.price.replace(/[^\d,]/g, "") }));
+    } else {
+      setCheckoutProduct(null);
+    }
+    setCheckoutOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.valor || !form.condicao) {
+      alert("Preencha valor e condição.");
+      return;
+    }
+    alert(`Link de transação gerado!\n\nOperadora: ${form.operadora}\nValor: R$ ${form.valor}\nCondição: ${form.condicao}x`);
+    setCheckoutOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Top utility bar */}
