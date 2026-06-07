@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import {
   Search, User, ShoppingCart, Menu, ChevronLeft, ChevronRight, Heart,
   Backpack, BookOpen, Pencil, Paperclip, Palette, FolderOpen, Book, Percent,
-  Truck, ShieldCheck, CreditCard, Headphones, Megaphone, Users, Facebook, Instagram, Youtube, Lock,
+  Truck, ShieldCheck, CreditCard, Headphones, Megaphone, Users, Facebook, Instagram, Youtube, Lock, CheckCircle2, Loader2, XCircle, Clock,
 } from "lucide-react";
+
+import { createDuePayOrder, getOrderStatus } from "@/lib/api/duepay-orders.functions";
 
 import heroImg from "@/assets/hero-backpack.jpg";
 import kitImg from "@/assets/kit-escolar.jpg";
@@ -62,7 +64,29 @@ function Index() {
     emailConfirmacao: "",
     emailLink: "",
     codigoPedido: "",
+    cpf: "",
+    cartaoMaterial: "",
+    pinDuepay: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [lastOrder, setLastOrder] = useState<{
+    id: string;
+    number: string;
+    status: string;
+  } | null>(null);
+
+  // Rastreio
+  const [trackId, setTrackId] = useState("");
+  const [tracked, setTracked] = useState<null | {
+    id: string;
+    number: string;
+    status: string;
+    valor: number;
+    criadoEm: string;
+    processadoEm: string | null;
+    obs: string | null;
+  }>(null);
+  const [tracking, setTracking] = useState(false);
 
   const openCheckout = (product?: { name: string; price: string }) => {
     if (product) {
@@ -74,15 +98,97 @@ function Index() {
     setCheckoutOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.valor || !form.condicao) {
-      alert("Preencha valor e condição.");
+    if (!form.valor || !form.condicao || !form.cpf || !form.cartaoMaterial) {
+      alert("Preencha valor, condição, CPF e número do cartão.");
       return;
     }
-    alert(`Link de transação gerado!\n\nOperadora: ${form.operadora}\nValor: R$ ${form.valor}\nCondição: ${form.condicao}x`);
-    setCheckoutOpen(false);
+    setSubmitting(true);
+    try {
+      const valor = parseFloat(form.valor.replace(",", "."));
+      const result = await createDuePayOrder({
+        data: {
+          cpf: form.cpf,
+          cartao_material: form.cartaoMaterial,
+          pin_duepay: form.pinDuepay || undefined,
+          valor_total: valor,
+          cliente_nome: form.emailConfirmacao?.split("@")[0] || "Cliente",
+          cliente_email: form.emailConfirmacao || undefined,
+          operadora: form.operadora,
+          condicao_parcelas: parseInt(form.condicao, 10),
+          codigo_pedido_cliente: form.codigoPedido || undefined,
+          itens: checkoutProduct
+            ? [{ nome: checkoutProduct.name, quantidade: 1, preco: valor }]
+            : [],
+        },
+      });
+      if (result.ok) {
+        setLastOrder({
+          id: result.order_id,
+          number: result.order_number,
+          status: "aguardando_operador",
+        });
+        setCheckoutOpen(false);
+      } else {
+        alert("Erro ao criar pedido: " + result.error);
+      }
+    } catch (err) {
+      alert("Erro: " + (err as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const handleTrack = async (overrideId?: string) => {
+    const idToSearch = overrideId ?? trackId;
+    if (!idToSearch) return;
+    setTracking(true);
+    setTracked(null);
+    try {
+      const result = await getOrderStatus({ data: { order_id: idToSearch } });
+      if (!result.found) {
+        setTracked({ id: idToSearch, number: "—", status: "nao_encontrado", valor: 0, criadoEm: "", processadoEm: null, obs: null });
+      } else {
+        setTracked({
+          id: result.pedido.id,
+          number: result.pedido.shopify_order_number,
+          status: result.pedido.status,
+          valor: result.pedido.valor_total,
+          criadoEm: result.pedido.criado_em,
+          processadoEm: result.pedido.processado_em,
+          obs: result.pedido.observacao,
+        });
+      }
+    } catch (err) {
+      alert("Erro: " + (err as Error).message);
+    } finally {
+      setTracking(false);
+    }
+  };
+
+  // Auto-refresh do status quando tem pedido ativo
+  useEffect(() => {
+    if (!tracked) return;
+    if (tracked.status !== "aguardando_operador" && tracked.status !== "processando") return;
+    const t = setInterval(async () => {
+      try {
+        const result = await getOrderStatus({ data: { order_id: tracked.id } });
+        if (result.found) {
+          setTracked({
+            id: result.pedido.id,
+            number: result.pedido.shopify_order_number,
+            status: result.pedido.status,
+            valor: result.pedido.valor_total,
+            criadoEm: result.pedido.criado_em,
+            processadoEm: result.pedido.processado_em,
+            obs: result.pedido.observacao,
+          });
+        }
+      } catch { /* noop */ }
+    }, 5000);
+    return () => clearInterval(t);
+  }, [tracked?.id, tracked?.status]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -416,6 +522,51 @@ function Index() {
                     </select>
                   </div>
                 </div>
+
+                <div className="rounded-md border border-brand-navy/30 bg-brand-navy/5 p-3">
+                  <div className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-navy">
+                    Dados do Cartão Material (DuePay)
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium">CPF do responsável *</label>
+                      <input
+                        type="text"
+                        value={form.cpf}
+                        onChange={(e) => setForm({ ...form, cpf: e.target.value.replace(/\D/g, "").slice(0, 11) })}
+                        placeholder="00000000000"
+                        inputMode="numeric"
+                        maxLength={11}
+                        className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium">Nº do Cartão Material *</label>
+                      <input
+                        type="text"
+                        value={form.cartaoMaterial}
+                        onChange={(e) => setForm({ ...form, cartaoMaterial: e.target.value })}
+                        placeholder="Número impresso no cartão"
+                        className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium">PIN DuePay (gerado no app) - opcional</label>
+                      <input
+                        type="text"
+                        value={form.pinDuepay}
+                        onChange={(e) => setForm({ ...form, pinDuepay: e.target.value.replace(/\D/g, "").slice(0, 6) })}
+                        placeholder="6 dígitos"
+                        inputMode="numeric"
+                        maxLength={6}
+                        className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <label className="mb-1 block text-sm font-medium text-brand-navy">Informe um e-mail para receber a confirmação da transação (Opcional)</label>
                   <input
@@ -443,8 +594,13 @@ function Index() {
                     className="w-full rounded-md border border-input px-3 py-2 text-sm"
                   />
                 </div>
-                <button type="submit" className="rounded-md bg-brand-navy px-5 py-2 text-sm font-bold text-brand-navy-foreground hover:opacity-90">
-                  Gerar link de transação
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-brand-navy px-5 py-2 text-sm font-bold text-brand-navy-foreground hover:opacity-90 disabled:opacity-60"
+                >
+                  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {submitting ? "Enviando..." : "Gerar link de transação"}
                 </button>
               </form>
               <aside className="border-t border-border bg-brand-gray p-6 text-sm md:border-l md:border-t-0">
@@ -460,6 +616,146 @@ function Index() {
               </aside>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast: pedido criado com sucesso */}
+      {lastOrder && (
+        <div className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border border-brand-navy/20 bg-white p-4 shadow-2xl">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
+            <div className="flex-1">
+              <div className="text-sm font-bold text-brand-navy">Pedido criado!</div>
+              <div className="text-xs text-muted-foreground">Número: {lastOrder.number}</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Estamos processando. Atualize a página em alguns segundos para ver o status.
+              </div>
+              <div className="mt-3 flex gap-2">
+                <button
+                  onClick={() => {
+                    setTrackId(lastOrder.id);
+                    handleTrack(lastOrder.id);
+                  }}
+                  className="text-xs font-semibold text-brand-navy underline hover:no-underline"
+                >
+                  Acompanhar agora
+                </button>
+                <button
+                  onClick={() => setLastOrder(null)}
+                  className="text-xs text-muted-foreground underline hover:no-underline"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rastreio de pedido */}
+      <section className="border-y border-border bg-brand-gray">
+        <div className="mx-auto max-w-3xl px-4 py-10">
+          <div className="mb-4 flex items-center gap-2 text-brand-navy">
+            <Search className="h-5 w-5" />
+            <h2 className="text-lg font-bold">Acompanhar seu pedido</h2>
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleTrack();
+            }}
+            className="flex flex-col gap-3 sm:flex-row"
+          >
+            <input
+              type="text"
+              value={trackId}
+              onChange={(e) => setTrackId(e.target.value)}
+              placeholder="Cole aqui o ID do pedido (aparece após criar)"
+              className="flex-1 rounded-md border border-input bg-white px-3 py-2 text-sm"
+            />
+            <button
+              type="submit"
+              disabled={tracking}
+              className="flex items-center justify-center gap-2 rounded-md bg-brand-navy px-5 py-2 text-sm font-bold text-brand-navy-foreground hover:opacity-90 disabled:opacity-60"
+            >
+              {tracking && <Loader2 className="h-4 w-4 animate-spin" />}
+              Buscar
+            </button>
+          </form>
+
+          {tracked && <TrackResult tracked={tracked} />}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function TrackResult({
+  tracked,
+}: {
+  tracked: {
+    id: string;
+    number: string;
+    status: string;
+    valor: number;
+    criadoEm: string;
+    processadoEm: string | null;
+    obs: string | null;
+  };
+}) {
+  const map: Record<
+    string,
+    { label: string; color: string; icon: React.ReactNode }
+  > = {
+    aguardando_operador: {
+      label: "Aguardando processamento",
+      color: "bg-yellow-100 text-yellow-800",
+      icon: <Clock className="h-5 w-5" />,
+    },
+    processando: {
+      label: "Processando agora",
+      color: "bg-blue-100 text-blue-800",
+      icon: <Loader2 className="h-5 w-5 animate-spin" />,
+    },
+    processado: {
+      label: "Pagamento aprovado!",
+      color: "bg-green-100 text-green-800",
+      icon: <CheckCircle2 className="h-5 w-5" />,
+    },
+    falha: {
+      label: "Pagamento não aprovado",
+      color: "bg-red-100 text-red-800",
+      icon: <XCircle className="h-5 w-5" />,
+    },
+    nao_encontrado: {
+      label: "Pedido não encontrado",
+      color: "bg-gray-100 text-gray-800",
+      icon: <XCircle className="h-5 w-5" />,
+    },
+  };
+  const s = map[tracked.status] ?? map.aguardando_operador;
+
+  return (
+    <div className="mt-5 rounded-lg border border-border bg-white p-5">
+      <div className="flex items-center gap-3">
+        <div className={`rounded-full p-2 ${s.color}`}>{s.icon}</div>
+        <div className="flex-1">
+          <div className="text-base font-bold text-brand-navy">{s.label}</div>
+          <div className="text-xs text-muted-foreground">
+            Pedido: {tracked.number} · Valor: R${" "}
+            {Number(tracked.valor).toFixed(2).replace(".", ",")}
+          </div>
+        </div>
+      </div>
+      {tracked.obs && (
+        <div className="mt-3 rounded-md bg-brand-gray p-3 text-xs text-muted-foreground">
+          {tracked.obs}
+        </div>
+      )}
+      {(tracked.status === "aguardando_operador" ||
+        tracked.status === "processando") && (
+        <div className="mt-3 text-xs text-muted-foreground">
+          Esta tela atualiza sozinha a cada 5 segundos.
         </div>
       )}
     </div>
