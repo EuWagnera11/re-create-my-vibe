@@ -258,7 +258,7 @@ function Index() {
               <h3 className="mt-3 line-clamp-2 min-h-[2.5rem] text-xs text-foreground">{p.name}</h3>
               <div className="mt-2 flex items-center justify-between">
                 <div className="text-base font-bold text-brand-navy">{p.price}</div>
-                <button className="rounded-md bg-brand-navy p-1.5 text-brand-navy-foreground hover:opacity-90" aria-label="Adicionar ao carrinho">
+                <button onClick={() => openCheckout(p)} className="rounded-md bg-brand-navy p-1.5 text-brand-navy-foreground hover:opacity-90" aria-label="Comprar">
                   <ShoppingCart className="h-4 w-4" />
                 </button>
               </div>
