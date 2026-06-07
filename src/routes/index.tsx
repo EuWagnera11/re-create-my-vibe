@@ -138,14 +138,14 @@ function Index() {
                 <div className="text-xs text-muted-foreground">Minha conta</div>
               </div>
             </button>
-            <button className="flex items-center gap-2 text-sm">
+            <button onClick={() => openCheckout()} className="flex items-center gap-2 text-sm">
               <div className="relative">
                 <ShoppingCart className="h-6 w-6 text-brand-navy" />
                 <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-brand-red-foreground">0</span>
               </div>
               <div className="leading-tight text-left">
-                <div className="font-semibold">Carrinho</div>
-                <div className="text-xs text-muted-foreground">R$ 0,00</div>
+                <div className="font-semibold">Checkout</div>
+                <div className="text-xs text-muted-foreground">Gerar link</div>
               </div>
             </button>
           </div>
