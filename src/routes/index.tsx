@@ -109,7 +109,7 @@ function Index() {
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-4">
           <a href="/" className="flex items-center gap-3">
-            <img src={bmvarLogo.url} alt="BM Variedades" width={140} height={72} loading="eager" className="h-14 w-auto object-contain" />
+            <img src={bmvarLogo.url} alt="BM Variedades" width={200} height={104} loading="eager" className="h-20 w-auto object-contain" />
           </a>
 
           <div className="hidden border-l border-border pl-4 md:block">
