@@ -361,6 +361,109 @@ function Index() {
           </div>
         </div>
       </footer>
+
+      {/* Checkout Modal */}
+      {checkoutOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setCheckoutOpen(false)}>
+          <div className="w-full max-w-3xl rounded-lg bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-border bg-brand-navy px-6 py-4">
+              <h2 className="text-lg font-bold text-brand-navy-foreground">Gerar link de transação</h2>
+              <button onClick={() => setCheckoutOpen(false)} className="text-brand-navy-foreground hover:opacity-70" aria-label="Fechar">✕</button>
+            </div>
+            <div className="grid grid-cols-1 gap-0 md:grid-cols-3">
+              <form onSubmit={handleSubmit} className="space-y-4 p-6 md:col-span-2">
+                {checkoutProduct && (
+                  <div className="rounded-md bg-brand-gray p-3 text-sm">
+                    <div className="font-semibold text-brand-navy">{checkoutProduct.name}</div>
+                    <div className="text-xs text-muted-foreground">{checkoutProduct.price}</div>
+                  </div>
+                )}
+                <div>
+                  <label className="mb-1 block text-sm font-medium">Operadora</label>
+                  <select
+                    value={form.operadora}
+                    onChange={(e) => setForm({ ...form, operadora: e.target.value })}
+                    className="w-full rounded-md border border-input bg-white px-3 py-2 text-sm"
+                  >
+                    <option>PERSONAL CARD POS-PAGO</option>
+                    <option>PERSONAL CARD PRE-PAGO</option>
+                    <option>TRIO CARD POS-PAGO</option>
+                    <option>TRIO CARD PRE-PAGO</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Valor da transação</label>
+                    <input
+                      type="text"
+                      value={form.valor}
+                      onChange={(e) => setForm({ ...form, valor: e.target.value })}
+                      placeholder="0,00"
+                      className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Condição</label>
+                    <select
+                      value={form.condicao}
+                      onChange={(e) => setForm({ ...form, condicao: e.target.value })}
+                      className="w-full rounded-md border border-input bg-white px-3 py-2 text-sm"
+                      required
+                    >
+                      <option value="">Selecione</option>
+                      {Array.from({ length: 12 }, (_, n) => (
+                        <option key={n + 1} value={n + 1}>{n + 1}x</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-brand-navy">Informe um e-mail para receber a confirmação da transação (Opcional)</label>
+                  <input
+                    type="email"
+                    value={form.emailConfirmacao}
+                    onChange={(e) => setForm({ ...form, emailConfirmacao: e.target.value })}
+                    className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-brand-navy">Informe um e-mail para enviar o link (Opcional)</label>
+                  <input
+                    type="email"
+                    value={form.emailLink}
+                    onChange={(e) => setForm({ ...form, emailLink: e.target.value })}
+                    className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-brand-navy">Código do pedido (Opcional. Será enviado nos e-mails)</label>
+                  <input
+                    type="text"
+                    value={form.codigoPedido}
+                    onChange={(e) => setForm({ ...form, codigoPedido: e.target.value })}
+                    className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                  />
+                </div>
+                <button type="submit" className="rounded-md bg-brand-navy px-5 py-2 text-sm font-bold text-brand-navy-foreground hover:opacity-90">
+                  Gerar link de transação
+                </button>
+              </form>
+              <aside className="border-t border-border bg-brand-gray p-6 text-sm md:border-l md:border-t-0">
+                <div className="text-center font-bold text-brand-navy">M DA C PEREIRA COMERCIO ME</div>
+                <div className="mt-3 space-y-1 text-brand-navy">
+                  <div className="font-semibold">BM CELL</div>
+                  <div>CNPJ: 36.111.681/0001-02</div>
+                  <div>ESTR. DO ALVARENGA, 3056</div>
+                  <div>BALNEARIO SAO FRANCISCO</div>
+                  <div>SAO PAULO</div>
+                  <div>SP</div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
