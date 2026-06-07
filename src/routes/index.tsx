@@ -8,7 +8,7 @@ import {
 
 import heroImg from "@/assets/hero-backpack.jpg";
 import kitImg from "@/assets/kit-escolar.jpg";
-import bmcellLogo from "@/assets/bmcell-logo.png.asset.json";
+import bmvarLogo from "@/assets/bmvariedades-logo.png.asset.json";
 import pLapis from "@/assets/prod-lapis.jpg";
 import pCaderno from "@/assets/prod-caderno.jpg";
 import pCaneta from "@/assets/prod-caneta.jpg";
@@ -19,10 +19,10 @@ import pEstojo from "@/assets/prod-estojo.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BM Cell — Material Escolar" },
-      { name: "description", content: "A BM Cell vende materiais escolares com qualidade e preço justo. Kits, mochilas, papelaria e mais." },
-      { property: "og:title", content: "BM Cell — Material Escolar" },
-      { property: "og:description", content: "A BM Cell vende materiais escolares com qualidade e preço justo." },
+      { title: "BM Variedades" },
+      { name: "description", content: "A BM Variedades vende materiais escolares com qualidade e preço justo. Kits, mochilas, papelaria e mais." },
+      { property: "og:title", content: "BM Variedades" },
+      { property: "og:description", content: "A BM Variedades vende materiais escolares com qualidade e preço justo." },
       { property: "og:type", content: "website" },
     ],
   }),
@@ -91,7 +91,7 @@ function Index() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <span>🇧🇷</span>
-            <span>BM Cell — Material Escolar</span>
+            <span>BM Variedades</span>
           </div>
           <div className="hidden items-center gap-5 md:flex">
             <span className="flex items-center gap-1">Acessibilidade ♿</span>
@@ -109,11 +109,11 @@ function Index() {
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-4">
           <a href="/" className="flex items-center gap-3">
-            <img src={bmcellLogo.url} alt="BM Cell" width={140} height={72} loading="eager" className="h-14 w-auto object-contain" />
+            <img src={bmvarLogo.url} alt="BM Variedades" width={140} height={72} loading="eager" className="h-14 w-auto object-contain" />
           </a>
 
           <div className="hidden border-l border-border pl-4 md:block">
-            <div className="text-xl font-bold text-brand-navy">Material Escolar BM Cell</div>
+            <div className="text-xl font-bold text-brand-navy">BM Variedades</div>
             <div className="text-xs text-muted-foreground">Tudo para o ano letivo<br />kits, papelaria e mochilas</div>
           </div>
 
@@ -307,9 +307,9 @@ function Index() {
             <Users className="h-5 w-5" /> <span className="text-sm font-bold">QUEM SOMOS</span>
           </div>
           <p className="text-xs text-muted-foreground">
-            A BM Cell vende materiais escolares com qualidade e preço justo. Nosso compromisso é equipar os estudantes com tudo o que precisam para ir longe.
+            A BM Variedades vende materiais escolares com qualidade e preço justo. Nosso compromisso é equipar os estudantes com tudo o que precisam para ir longe.
           </p>
-          <a href="#" className="mt-2 inline-block text-xs font-semibold text-brand-navy hover:underline">Conheça mais sobre a BM Cell →</a>
+          <a href="#" className="mt-2 inline-block text-xs font-semibold text-brand-navy hover:underline">Conheça mais sobre a BM Variedades →</a>
         </div>
         <div className="rounded-lg bg-brand-navy p-5 text-brand-navy-foreground">
           <div className="text-sm font-bold">DÚVIDAS?</div>
@@ -329,20 +329,20 @@ function Index() {
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-10 md:grid-cols-5">
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 rounded-md bg-white p-2">
-              <img src={bmcellLogo.url} alt="BM Cell" width={120} height={48} loading="eager" className="h-10 w-auto object-contain" />
+              <img src={bmvarLogo.url} alt="BM Variedades" width={120} height={48} loading="eager" className="h-10 w-auto object-contain" />
             </div>
-            <p className="mt-3 text-xs opacity-80">BM Cell — Material Escolar. Todos os direitos reservados.</p>
+            <p className="mt-3 text-xs opacity-80">BM Variedades. Todos os direitos reservados.</p>
             <div className="mt-3 flex gap-3 opacity-90">
               <Facebook className="h-4 w-4" /><Instagram className="h-4 w-4" /><Youtube className="h-4 w-4" />
             </div>
           </div>
-          <FooterCol title="INSTITUCIONAL" items={["Sobre a BM Cell", "Notícias", "Transparência", "Legislação", "Fale Conosco"]} />
+          <FooterCol title="INSTITUCIONAL" items={["Sobre a BM Variedades", "Notícias", "Transparência", "Legislação", "Fale Conosco"]} />
           <FooterCol title="AJUDA" items={["Perguntas Frequentes", "Política de Privacidade", "Trocas e Devoluções", "Termos de Uso"]} />
           <div>
             <div className="mb-3 text-xs font-bold tracking-wider">ATENDIMENTO</div>
             <ul className="space-y-1.5 text-xs opacity-90">
               <li>📞 (11) 3397-0505</li>
-              <li>✉ atendimento@bmcell.com.br</li>
+              <li>✉ atendimento@bmvariedades.com.br</li>
               <li>Seg a Sex das 8h às 17h</li>
             </ul>
           </div>
@@ -357,7 +357,7 @@ function Index() {
         </div>
         <div className="bg-brand-red">
           <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-2 text-xs text-brand-red-foreground">
-            <Lock className="h-3 w-3" /> bmcell.com.br
+            <Lock className="h-3 w-3" /> bmvariedades.com.br
           </div>
         </div>
       </footer>
@@ -452,7 +452,7 @@ function Index() {
               <aside className="border-t border-border bg-brand-gray p-6 text-sm md:border-l md:border-t-0">
                 <div className="text-center font-bold text-brand-navy">M DA C PEREIRA COMERCIO ME</div>
                 <div className="mt-3 space-y-1 text-brand-navy">
-                  <div className="font-semibold">BM CELL</div>
+                  <div className="font-semibold">BM VARIEDADES</div>
                   <div>CNPJ: 36.111.681/0001-02</div>
                   <div>ESTR. DO ALVARENGA, 3056</div>
                   <div>BALNEARIO SAO FRANCISCO</div>
