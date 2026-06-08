@@ -85,8 +85,10 @@ function Index() {
     criadoEm: string;
     processadoEm: string | null;
     obs: string | null;
+    link: string | null;
   }>(null);
   const [tracking, setTracking] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   const openCheckout = (product?: { name: string; price: string }) => {
     if (product) {
@@ -148,7 +150,7 @@ function Index() {
     try {
       const result = await getOrderStatus({ data: { order_id: idToSearch } });
       if (!result.found) {
-        setTracked({ id: idToSearch, number: "—", status: "nao_encontrado", valor: 0, criadoEm: "", processadoEm: null, obs: null });
+        setTracked({ id: idToSearch, number: "—", status: "nao_encontrado", valor: 0, criadoEm: "", processadoEm: null, obs: null, link: null });
       } else {
         setTracked({
           id: result.pedido.id,
@@ -158,6 +160,7 @@ function Index() {
           criadoEm: result.pedido.criado_em,
           processadoEm: result.pedido.processado_em,
           obs: result.pedido.observacao,
+          link: (result.pedido as any).link_pagamento ?? null,
         });
       }
     } catch (err) {
@@ -170,7 +173,7 @@ function Index() {
   // Auto-refresh do status quando tem pedido ativo
   useEffect(() => {
     if (!tracked) return;
-    if (tracked.status !== "aguardando_operador" && tracked.status !== "processando") return;
+    if (tracked.status !== "aguardando_operador" && tracked.status !== "processando" && tracked.status !== "link_gerado") return;
     const t = setInterval(async () => {
       try {
         const result = await getOrderStatus({ data: { order_id: tracked.id } });
@@ -183,12 +186,33 @@ function Index() {
             criadoEm: result.pedido.criado_em,
             processadoEm: result.pedido.processado_em,
             obs: result.pedido.observacao,
+            link: (result.pedido as any).link_pagamento ?? null,
           });
         }
       } catch { /* noop */ }
     }, 5000);
     return () => clearInterval(t);
   }, [tracked?.id, tracked?.status]);
+
+  const handleConfirmPayment = async () => {
+    if (!tracked) return;
+    if (!confirm("Confirma que o pagamento foi feito no portal TLN?")) return;
+    setConfirming(true);
+    try {
+      const result = await confirmPayment({
+        data: { order_id: tracked.id, observacao: "Confirmado manualmente" },
+      });
+      if (result.ok) {
+        await handleTrack(tracked.id);
+      } else {
+        alert("Erro: " + result.error);
+      }
+    } catch (err) {
+      alert("Erro: " + (err as Error).message);
+    } finally {
+      setConfirming(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
