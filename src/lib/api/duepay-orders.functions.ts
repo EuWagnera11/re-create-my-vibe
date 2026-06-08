@@ -91,13 +91,41 @@ export const getOrderStatus = createServerFn({ method: "GET" })
     const { data: pedido } = await supabase
       .from("pedidos_pendentes")
       .select(
-        "id, shopify_order_number, status, criado_em, processado_em, observacao, valor_total"
+        "id, shopify_order_number, status, criado_em, processado_em, observacao, valor_total, link_pagamento"
       )
       .eq("id", data.order_id)
       .single();
 
     if (!pedido) return { found: false as const };
     return { found: true as const, pedido };
+  });
+
+// === Cliente ou operador confirma pagamento manualmente =========
+// (usado até liberarem a API/webhook do TLN)
+export const confirmPayment = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      order_id: z.string().min(1),
+      observacao: z.string().optional(),
+    })
+  )
+  .handler(async ({ data }) => {
+    const supabase = getSupabase();
+    const { data: pedido, error } = await supabase
+      .from("pedidos_pendentes")
+      .update({
+        status: "processado",
+        observacao: data.observacao ?? "Confirmado manualmente",
+        processado_em: new Date().toISOString(),
+      })
+      .eq("id", data.order_id)
+      .select()
+      .single();
+
+    if (error) {
+      return { ok: false as const, error: error.message };
+    }
+    return { ok: true as const, pedido };
   });
 
 // === Admin: listar todos os pedidos ==============================

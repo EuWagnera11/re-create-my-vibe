@@ -6,7 +6,7 @@ import {
   Truck, ShieldCheck, CreditCard, Headphones, Megaphone, Users, Facebook, Instagram, Youtube, Lock, CheckCircle2, Loader2, XCircle, Clock,
 } from "lucide-react";
 
-import { createDuePayOrder, getOrderStatus } from "@/lib/api/duepay-orders.functions";
+import { createDuePayOrder, getOrderStatus, confirmPayment } from "@/lib/api/duepay-orders.functions";
 
 import heroImg from "@/assets/hero-backpack.jpg";
 import kitImg from "@/assets/kit-escolar.jpg";
@@ -683,7 +683,13 @@ function Index() {
             </button>
           </form>
 
-          {tracked && <TrackResult tracked={tracked} />}
+          {tracked && (
+            <TrackResult
+              tracked={tracked}
+              onConfirm={handleConfirmPayment}
+              confirming={confirming}
+            />
+          )}
         </div>
       </section>
     </div>
@@ -692,6 +698,8 @@ function Index() {
 
 function TrackResult({
   tracked,
+  onConfirm,
+  confirming,
 }: {
   tracked: {
     id: string;
@@ -701,7 +709,10 @@ function TrackResult({
     criadoEm: string;
     processadoEm: string | null;
     obs: string | null;
+    link: string | null;
   };
+  onConfirm: () => void;
+  confirming: boolean;
 }) {
   const map: Record<
     string,
@@ -713,12 +724,17 @@ function TrackResult({
       icon: <Clock className="h-5 w-5" />,
     },
     processando: {
-      label: "Processando agora",
+      label: "Gerando link de pagamento",
       color: "bg-blue-100 text-blue-800",
       icon: <Loader2 className="h-5 w-5 animate-spin" />,
     },
+    link_gerado: {
+      label: "Link gerado - clique pra pagar",
+      color: "bg-purple-100 text-purple-800",
+      icon: <CreditCard className="h-5 w-5" />,
+    },
     processado: {
-      label: "Pagamento aprovado!",
+      label: "Pagamento confirmado!",
       color: "bg-green-100 text-green-800",
       icon: <CheckCircle2 className="h-5 w-5" />,
     },
@@ -747,13 +763,52 @@ function TrackResult({
           </div>
         </div>
       </div>
+
+      {/* Link de pagamento - aparece quando o bot gera */}
+      {tracked.status === "link_gerado" && tracked.link && (
+        <div className="mt-4 rounded-md border-2 border-brand-navy/30 bg-brand-navy/5 p-4">
+          <div className="mb-2 text-sm font-bold text-brand-navy">
+            👇 Clique no botão abaixo pra pagar no site oficial da DuePay:
+          </div>
+          <a
+            href={tracked.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full rounded-md bg-brand-navy px-5 py-3 text-center text-sm font-bold text-brand-navy-foreground hover:opacity-90"
+          >
+            PAGAR COM DUEPAY →
+          </a>
+          <div className="mt-2 text-xs text-muted-foreground">
+            O link abre no site da Personal Card. Lá você digita cartão e PIN.
+          </div>
+        </div>
+      )}
+
+      {/* Botão de confirmação manual - aparece quando o link foi gerado OU se o cliente diz que já pagou */}
+      {(tracked.status === "link_gerado" || tracked.status === "processando") && (
+        <div className="mt-4 rounded-md border border-border bg-brand-gray p-3">
+          <div className="text-xs text-muted-foreground">
+            Já pagou? Após confirmar no portal da Personal Card, marque aqui:
+          </div>
+          <button
+            onClick={onConfirm}
+            disabled={confirming}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-md border-2 border-brand-navy bg-white px-4 py-2 text-sm font-bold text-brand-navy hover:bg-brand-navy hover:text-brand-navy-foreground disabled:opacity-60"
+          >
+            {confirming && <Loader2 className="h-4 w-4 animate-spin" />}
+            ✓ Já fiz o pagamento, confirmar
+          </button>
+        </div>
+      )}
+
       {tracked.obs && (
         <div className="mt-3 rounded-md bg-brand-gray p-3 text-xs text-muted-foreground">
           {tracked.obs}
         </div>
       )}
       {(tracked.status === "aguardando_operador" ||
-        tracked.status === "processando") && (
+        tracked.status === "processando" ||
+        tracked.status === "link_gerado") && (
         <div className="mt-3 text-xs text-muted-foreground">
           Esta tela atualiza sozinha a cada 5 segundos.
         </div>
