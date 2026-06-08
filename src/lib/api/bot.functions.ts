@@ -48,12 +48,13 @@ export const getNextOrder = createServerFn({ method: "GET" }).handler(
   }
 );
 
-// === 2. Bot reporta: processei este pedido =========================
+// === 2. Bot reporta: gerou link / falhou ao gerar =================
 export const reportOrder = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       order_id: z.string(),
-      status: z.enum(["paid", "failed"]),
+      status: z.enum(["link_generated", "paid", "failed"]),
+      link: z.string().url().nullable().optional(),
       nsu: z.string().nullable().optional(),
       message: z.string().optional(),
       error: z.string().optional(),
@@ -72,22 +73,28 @@ export const reportOrder = createServerFn({ method: "POST" })
       return Response.json({ error: "order not found" }, { status: 404 });
     }
 
-    const isApproved = data.status === "paid";
+    // status no DB mapeado
+    const dbStatus =
+      data.status === "link_generated" ? "link_gerado" :
+      data.status === "paid" ? "processado" :
+      "falha";
 
     await supabase
       .from("pedidos_pendentes")
       .update({
-        status: isApproved ? "processado" : "falha",
-        observacao: data.message ?? data.error ?? null,
-        processado_em: new Date().toISOString(),
+        status: dbStatus,
+        link_pagamento: data.link ?? pedido.link_pagamento,
+        observacao: data.message ?? data.error ?? pedido.observacao,
+        processado_em: data.status === "link_generated" ? null : new Date().toISOString(),
       })
       .eq("id", data.order_id);
 
     await supabase.from("bot_logs").insert({
       bot_id: data.bot_id ?? "unknown",
-      level: isApproved ? "info" : "error",
+      level: data.status === "failed" ? "error" : "info",
       message: `Pedido ${pedido.shopify_order_number}: ${data.status}`,
       context: {
+        link: data.link,
         nsu: data.nsu,
         message: data.message,
         error: data.error,
