@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { getSupabase } from "../supabase";
 
@@ -21,8 +22,8 @@ function authenticate(token: string | null): boolean {
 
 // === 1. Bot pergunta: tem pedido novo? =============================
 export const getNextOrder = createServerFn({ method: "GET" }).handler(
-  async ({ request }) => {
-    if (!authenticate(request.headers.get("x-bot-token"))) {
+  async () => {
+    if (!authenticate(getRequestHeader("x-bot-token") ?? null)) {
       return Response.json({ error: "unauthorized" }, { status: 401 });
     }
     const supabase = getSupabase();
