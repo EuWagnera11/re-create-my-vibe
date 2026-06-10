@@ -14,10 +14,155 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bot_logs: {
+        Row: {
+          bot_id: string
+          context: Json | null
+          criado_em: string
+          id: string
+          level: string
+          message: string | null
+        }
+        Insert: {
+          bot_id: string
+          context?: Json | null
+          criado_em?: string
+          id?: string
+          level?: string
+          message?: string | null
+        }
+        Update: {
+          bot_id?: string
+          context?: Json | null
+          criado_em?: string
+          id?: string
+          level?: string
+          message?: string | null
+        }
+        Relationships: []
+      }
+      bot_status: {
+        Row: {
+          bot_id: string
+          last_heartbeat: string
+          last_message: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          bot_id: string
+          last_heartbeat?: string
+          last_message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          bot_id?: string
+          last_heartbeat?: string
+          last_message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pedidos_pendentes: {
+        Row: {
+          cartao_material: string | null
+          cliente_email: string | null
+          cliente_nome: string | null
+          cliente_telefone: string | null
+          codigo_pedido_cliente: string | null
+          condicao_parcelas: number | null
+          cpf: string | null
+          criado_em: string
+          endereco: Json | null
+          id: string
+          itens: Json | null
+          link_pagamento: string | null
+          observacao: string | null
+          operadora: string | null
+          pin_duepay: string | null
+          processado_em: string | null
+          shopify_order_id: string | null
+          shopify_order_number: string | null
+          status: string
+          valor_total: number | null
+        }
+        Insert: {
+          cartao_material?: string | null
+          cliente_email?: string | null
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          codigo_pedido_cliente?: string | null
+          condicao_parcelas?: number | null
+          cpf?: string | null
+          criado_em?: string
+          endereco?: Json | null
+          id?: string
+          itens?: Json | null
+          link_pagamento?: string | null
+          observacao?: string | null
+          operadora?: string | null
+          pin_duepay?: string | null
+          processado_em?: string | null
+          shopify_order_id?: string | null
+          shopify_order_number?: string | null
+          status?: string
+          valor_total?: number | null
+        }
+        Update: {
+          cartao_material?: string | null
+          cliente_email?: string | null
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          codigo_pedido_cliente?: string | null
+          condicao_parcelas?: number | null
+          cpf?: string | null
+          criado_em?: string
+          endereco?: Json | null
+          id?: string
+          itens?: Json | null
+          link_pagamento?: string | null
+          observacao?: string | null
+          operadora?: string | null
+          pin_duepay?: string | null
+          processado_em?: string | null
+          shopify_order_id?: string | null
+          shopify_order_number?: string | null
+          status?: string
+          valor_total?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      bot_status_view: {
+        Row: {
+          bot_id: string | null
+          last_heartbeat: string | null
+          last_message: string | null
+          offline: boolean | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bot_id?: string | null
+          last_heartbeat?: string | null
+          last_message?: string | null
+          offline?: never
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bot_id?: string | null
+          last_heartbeat?: string | null
+          last_message?: string | null
+          offline?: never
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
