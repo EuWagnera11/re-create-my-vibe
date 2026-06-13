@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { sb, type Pedido } from "@/lib/supabase-external";
+import { sb, PEDIDOS_TABLE, type Pedido } from "@/lib/supabase-external";
 import { Loader2, RefreshCw, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
@@ -12,6 +12,7 @@ const ADMIN_PASSWORD = "admin123";
 const SESSION_KEY = "duepay_admin_ok";
 
 const STATUS_OPTIONS = [
+  "pendente",
   "aguardando_operador",
   "processando",
   "link_gerado",
@@ -74,7 +75,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   const fetchAll = async () => {
     const { data, error } = await sb
-      .from("pedidos")
+      .from(PEDIDOS_TABLE)
       .select("*")
       .order("criado_em", { ascending: false })
       .limit(200);
@@ -93,14 +94,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     if (status === "processado" || status === "falha") {
       patch.processado_em = new Date().toISOString();
     }
-    const { error } = await sb.from("pedidos").update(patch).eq("id", id);
+    const { error } = await sb.from(PEDIDOS_TABLE).update(patch).eq("id", id);
     if (error) alert("Erro: " + error.message);
     else fetchAll();
   };
 
   const removeOne = async (id: string) => {
     if (!confirm("Excluir pedido?")) return;
-    const { error } = await sb.from("pedidos").delete().eq("id", id);
+    const { error } = await sb.from(PEDIDOS_TABLE).delete().eq("id", id);
     if (error) alert("Erro: " + error.message);
     else fetchAll();
   };
