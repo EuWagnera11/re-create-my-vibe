@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, ChevronLeft, Clock, CreditCard, Loader2, XCircle } from "lucide-react";
-import { sb, type Pedido } from "@/lib/supabase-external";
+import { sb, PEDIDOS_TABLE, type Pedido } from "@/lib/supabase-external";
 import { formatBRL } from "@/lib/cart";
 import bmvarLogo from "@/assets/bmvariedades-logo.png.asset.json";
 
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/pedido/$id")({
 });
 
 const STATUS: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+  pendente: { label: "Pedido recebido — aguardando operador", color: "bg-yellow-100 text-yellow-800", icon: <Clock className="h-5 w-5" /> },
   aguardando_operador: { label: "Aguardando processamento", color: "bg-yellow-100 text-yellow-800", icon: <Clock className="h-5 w-5" /> },
   processando: { label: "Gerando link de pagamento", color: "bg-blue-100 text-blue-800", icon: <Loader2 className="h-5 w-5 animate-spin" /> },
   link_gerado: { label: "Link gerado — clique pra pagar", color: "bg-purple-100 text-purple-800", icon: <CreditCard className="h-5 w-5" /> },
@@ -30,7 +31,7 @@ function PedidoPage() {
   const [confirming, setConfirming] = useState(false);
 
   const load = async () => {
-    const { data } = await sb.from("pedidos").select("*").eq("id", id).maybeSingle();
+    const { data } = await sb.from(PEDIDOS_TABLE).select("*").eq("id", id).maybeSingle();
     setPedido((data as Pedido) ?? null);
     setLoading(false);
   };
@@ -41,7 +42,7 @@ function PedidoPage() {
 
   useEffect(() => {
     if (!pedido) return;
-    if (!["aguardando_operador", "processando", "link_gerado"].includes(pedido.status)) return;
+    if (!["pendente", "aguardando_operador", "processando", "link_gerado"].includes(pedido.status)) return;
     const t = setInterval(load, 5000);
     return () => clearInterval(t);
   }, [pedido?.status]);
@@ -50,7 +51,7 @@ function PedidoPage() {
     if (!confirm("Confirma que o pagamento foi feito no portal?")) return;
     setConfirming(true);
     await sb
-      .from("pedidos")
+      .from(PEDIDOS_TABLE)
       .update({ status: "processado", observacao: "Confirmado manualmente", processado_em: new Date().toISOString() })
       .eq("id", id);
     await load();
@@ -142,7 +143,7 @@ function PedidoPage() {
                 </div>
               )}
 
-              {["aguardando_operador", "processando", "link_gerado"].includes(pedido.status) && (
+              {["pendente", "aguardando_operador", "processando", "link_gerado"].includes(pedido.status) && (
                 <div className="mt-3 text-center text-xs text-muted-foreground">
                   Esta tela atualiza sozinha a cada 5 segundos.
                 </div>

