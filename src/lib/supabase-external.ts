@@ -43,7 +43,8 @@ export type Pedido = {
   observacao: string | null;
   source: string | null;
   processado_em: string | null;
-  criado_em: string;
+  created_at: string;
+  updated_at: string | null;
 };
 
 export type Configuracao = { chave: string; valor: string };
