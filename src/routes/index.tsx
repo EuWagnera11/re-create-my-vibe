@@ -1,12 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Search, User, ShoppingCart, Menu, ChevronLeft, ChevronRight, Heart,
   Backpack, BookOpen, Pencil, Paperclip, Palette, FolderOpen, Book, Percent,
-  Truck, ShieldCheck, CreditCard, Headphones, Megaphone, Users, Facebook, Instagram, Youtube, Lock, CheckCircle2, Loader2, XCircle, Clock,
+  Truck, ShieldCheck, CreditCard, Headphones, Megaphone, Users, Facebook, Instagram, Youtube, Lock, Plus,
 } from "lucide-react";
 
-import { sb, type Pedido } from "@/lib/supabase-external";
+import { useCart, formatBRL } from "@/lib/cart";
 
 import heroImg from "@/assets/hero-backpack.jpg";
 import kitImg from "@/assets/kit-escolar.jpg";
@@ -46,165 +46,26 @@ const categories = [
 const navLinks = ["INÍCIO", "KIT ESCOLAR", "MATERIAL INDIVIDUAL", "PAPELARIA", "MOCHILAS E BOLSAS", "LIVROS", "PROMOÇÕES", "CONTATO"];
 
 const products = [
-  { img: pLapis, name: "Lápis de Cor 12 Cores Multicolor", price: "R$ 8,90" },
-  { img: pCaderno, name: "Caderno Universitário 1 Matéria 96 Folhas", price: "R$ 6,90" },
-  { img: pCaneta, name: "Caneta Esferográfica Azul – 1 Unidade", price: "R$ 1,20" },
-  { img: pCola, name: "Cola Branca 90g Lavável", price: "R$ 2,90" },
-  { img: pMochila, name: "Mochila Escolar Poliéster", price: "R$ 79,90" },
-  { img: pEstojo, name: "Estojo Escolar Duplo", price: "R$ 24,90" },
+  { id: "lapis-12", img: pLapis, name: "Lápis de Cor 12 Cores Multicolor", price: 8.9 },
+  { id: "caderno-uni", img: pCaderno, name: "Caderno Universitário 1 Matéria 96 Folhas", price: 6.9 },
+  { id: "caneta-azul", img: pCaneta, name: "Caneta Esferográfica Azul – 1 Unidade", price: 1.2 },
+  { id: "cola-90g", img: pCola, name: "Cola Branca 90g Lavável", price: 2.9 },
+  { id: "mochila-poli", img: pMochila, name: "Mochila Escolar Poliéster", price: 79.9 },
+  { id: "estojo-duplo", img: pEstojo, name: "Estojo Escolar Duplo", price: 24.9 },
 ];
 
 function Index() {
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [checkoutProduct, setCheckoutProduct] = useState<{ name: string; price: string } | null>(null);
-  const [form, setForm] = useState({
-    operador: "PERSONAL CARD POS-PAGO",
-    valor: "",
-    condicao: "",
-    emailConfirmacao: "",
-    emailLink: "",
-    codigoPedido: "",
-    cpf: "",
-    cartaoNumero: "",
-    cartaoCvv: "",
-    cartaoValidade: "",
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [lastOrder, setLastOrder] = useState<{
-    id: string;
-    number: string;
-    status: string;
-  } | null>(null);
+  const cart = useCart();
+  const [added, setAdded] = useState<string | null>(null);
 
-  // Rastreio
-  const [trackId, setTrackId] = useState("");
-  const [tracked, setTracked] = useState<null | {
-    id: string;
-    number: string;
-    status: string;
-    valor: number;
-    criadoEm: string;
-    processadoEm: string | null;
-    obs: string | null;
-    link: string | null;
-  }>(null);
-  const [tracking, setTracking] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-
-  const openCheckout = (product?: { name: string; price: string }) => {
-    if (product) {
-      setCheckoutProduct(product);
-      setForm((f) => ({ ...f, valor: product.price.replace(/[^\d,]/g, "") }));
-    } else {
-      setCheckoutProduct(null);
-    }
-    setCheckoutOpen(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.valor || !form.condicao || !form.cpf || !form.cartaoNumero || !form.cartaoCvv || !form.cartaoValidade) {
-      alert("Preencha todos os campos obrigatórios.");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const valor = parseFloat(form.valor.replace(",", "."));
-      const { data, error } = await sb
-        .from("pedidos")
-        .insert({
-          status: "aguardando_operador",
-          cliente_cpf: form.cpf,
-          cartao_numero: form.cartaoNumero.replace(/\s/g, ""),
-          cartao_cvv: form.cartaoCvv,
-          cartao_validade: form.cartaoValidade,
-          valor,
-          operador: form.operador,
-          condicao: parseInt(form.condicao, 10),
-          codigo_pedido: form.codigoPedido || null,
-          cliente_email: form.emailConfirmacao || null,
-          cliente_nome: form.emailConfirmacao?.split("@")[0] || null,
-        })
-        .select("id")
-        .single();
-      if (error) throw error;
-      setLastOrder({ id: data.id, number: data.id.slice(0, 8), status: "aguardando_operador" });
-      setCheckoutOpen(false);
-    } catch (err) {
-      alert("Erro: " + (err as Error).message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const fetchPedido = async (id: string): Promise<Pedido | null> => {
-    const { data, error } = await sb.from("pedidos").select("*").eq("id", id).maybeSingle();
-    if (error || !data) return null;
-    return data as Pedido;
-  };
-
-  const mapToTracked = (p: Pedido) => ({
-    id: p.id,
-    number: p.codigo_pedido || p.id.slice(0, 8),
-    status: p.status,
-    valor: Number(p.valor),
-    criadoEm: p.criado_em,
-    processadoEm: p.processado_em,
-    obs: p.observacao,
-    link: p.link_pagamento,
-  });
-
-  const handleTrack = async (overrideId?: string) => {
-    const idToSearch = overrideId ?? trackId;
-    if (!idToSearch) return;
-    setTracking(true);
-    setTracked(null);
-    try {
-      const p = await fetchPedido(idToSearch);
-      if (!p) {
-        setTracked({ id: idToSearch, number: "—", status: "nao_encontrado", valor: 0, criadoEm: "", processadoEm: null, obs: null, link: null });
-      } else {
-        setTracked(mapToTracked(p));
-      }
-    } catch (err) {
-      alert("Erro: " + (err as Error).message);
-    } finally {
-      setTracking(false);
-    }
-  };
-
-  // Auto-refresh do status quando tem pedido ativo
-  useEffect(() => {
-    if (!tracked) return;
-    if (tracked.status !== "aguardando_operador" && tracked.status !== "processando" && tracked.status !== "link_gerado") return;
-    const t = setInterval(async () => {
-      const p = await fetchPedido(tracked.id);
-      if (p) setTracked(mapToTracked(p));
-    }, 5000);
-    return () => clearInterval(t);
-  }, [tracked?.id, tracked?.status]);
-
-  const handleConfirmPayment = async () => {
-    if (!tracked) return;
-    if (!confirm("Confirma que o pagamento foi feito no portal TLN?")) return;
-    setConfirming(true);
-    try {
-      const { error } = await sb
-        .from("pedidos")
-        .update({ status: "processado", observacao: "Confirmado manualmente", processado_em: new Date().toISOString() })
-        .eq("id", tracked.id);
-      if (error) throw error;
-      await handleTrack(tracked.id);
-    } catch (err) {
-      alert("Erro: " + (err as Error).message);
-    } finally {
-      setConfirming(false);
-    }
+  const handleAdd = (p: (typeof products)[number]) => {
+    cart.add({ id: p.id, name: p.name, price: p.price, img: p.img });
+    setAdded(p.name);
+    setTimeout(() => setAdded(null), 2200);
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Top utility bar */}
       <div className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -223,12 +84,11 @@ function Index() {
         </div>
       </div>
 
-      {/* Logo + Search + Account + Cart */}
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-4">
-          <a href="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <img src={bmvarLogo.url} alt="BM Variedades" width={200} height={104} loading="eager" className="h-20 w-auto object-contain" />
-          </a>
+          </Link>
 
           <div className="hidden border-l border-border pl-4 md:block">
             <div className="text-xl font-bold text-brand-navy">BM Variedades</div>
@@ -256,21 +116,22 @@ function Index() {
                 <div className="text-xs text-muted-foreground">Minha conta</div>
               </div>
             </button>
-            <button onClick={() => openCheckout()} className="flex items-center gap-2 text-sm">
+            <Link to="/carrinho" className="flex items-center gap-2 text-sm">
               <div className="relative">
                 <ShoppingCart className="h-6 w-6 text-brand-navy" />
-                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-brand-red-foreground">0</span>
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-brand-red text-[10px] font-bold text-brand-red-foreground">
+                  {cart.count}
+                </span>
               </div>
               <div className="leading-tight text-left">
-                <div className="font-semibold">Checkout</div>
-                <div className="text-xs text-muted-foreground">Gerar link</div>
+                <div className="font-semibold">Meu carrinho</div>
+                <div className="text-xs text-muted-foreground">{formatBRL(cart.total)}</div>
               </div>
-            </button>
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Nav bar */}
       <nav className="bg-brand-navy text-brand-navy-foreground">
         <div className="mx-auto flex max-w-7xl flex-wrap items-stretch px-4">
           <button className="flex items-center gap-2 bg-brand-red px-4 py-3 text-sm font-bold">
@@ -288,11 +149,8 @@ function Index() {
         </div>
       </nav>
 
-      {/* Hero */}
       <HeroCarousel />
 
-
-      {/* Categorias */}
       <section className="mx-auto max-w-7xl px-4 py-10">
         <div className="mb-6 flex items-end justify-between">
           <h2 className="text-sm font-bold tracking-wider text-foreground">COMPRE POR CATEGORIA</h2>
@@ -310,7 +168,6 @@ function Index() {
         </div>
       </section>
 
-      {/* Banners */}
       <section className="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 md:grid-cols-2">
         <div className="group relative h-56 overflow-hidden rounded-xl bg-gradient-to-br from-brand-navy to-[oklch(0.22_0.12_265)] p-7 text-brand-navy-foreground shadow-md transition hover:shadow-xl">
           <div className="relative z-10 max-w-[60%]">
@@ -358,7 +215,6 @@ function Index() {
         </div>
       </section>
 
-      {/* Produtos */}
       <section className="mx-auto max-w-7xl px-4 py-10">
         <div className="mb-6 flex items-end justify-between">
           <h2 className="text-sm font-bold tracking-wider text-foreground">PRODUTOS EM DESTAQUE</h2>
@@ -366,7 +222,7 @@ function Index() {
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {products.map((p) => (
-            <article key={p.name} className="group relative rounded-lg border border-border bg-white p-3 transition hover:shadow-md">
+            <article key={p.id} className="group relative flex flex-col rounded-lg border border-border bg-white p-3 transition hover:shadow-md">
               <button className="absolute right-3 top-3 z-10 text-muted-foreground hover:text-brand-red" aria-label="Favoritar">
                 <Heart className="h-4 w-4" />
               </button>
@@ -375,17 +231,19 @@ function Index() {
               </div>
               <h3 className="mt-3 line-clamp-2 min-h-[2.5rem] text-xs text-foreground">{p.name}</h3>
               <div className="mt-2 flex items-center justify-between">
-                <div className="text-base font-bold text-brand-navy">{p.price}</div>
-                <button onClick={() => openCheckout(p)} className="rounded-md bg-brand-navy p-1.5 text-brand-navy-foreground hover:opacity-90" aria-label="Comprar">
-                  <ShoppingCart className="h-4 w-4" />
-                </button>
+                <div className="text-base font-bold text-brand-navy">{formatBRL(p.price)}</div>
               </div>
+              <button
+                onClick={() => handleAdd(p)}
+                className="mt-3 flex items-center justify-center gap-1.5 rounded-md bg-brand-navy px-3 py-2 text-xs font-bold text-brand-navy-foreground hover:opacity-90"
+              >
+                <Plus className="h-3.5 w-3.5" /> Adicionar
+              </button>
             </article>
           ))}
         </div>
       </section>
 
-      {/* Benefícios */}
       <section className="border-y border-border bg-brand-gray">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-6 md:grid-cols-4">
           {[
@@ -405,7 +263,6 @@ function Index() {
         </div>
       </section>
 
-      {/* Avisos / Quem somos / Dúvidas */}
       <section className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-10 md:grid-cols-3">
         <div>
           <div className="mb-3 flex items-center gap-2 text-brand-navy">
@@ -442,7 +299,6 @@ function Index() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-brand-navy text-brand-navy-foreground">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-10 md:grid-cols-5">
           <div className="col-span-2 md:col-span-1">
@@ -478,371 +334,16 @@ function Index() {
         </div>
       </footer>
 
-      {/* Checkout Modal */}
-      {checkoutOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setCheckoutOpen(false)}>
-          <div className="w-full max-w-3xl rounded-lg bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-border bg-brand-navy px-6 py-4">
-              <h2 className="text-lg font-bold text-brand-navy-foreground">Gerar link de transação</h2>
-              <button onClick={() => setCheckoutOpen(false)} className="text-brand-navy-foreground hover:opacity-70" aria-label="Fechar">✕</button>
-            </div>
-            <div className="grid grid-cols-1 gap-0 md:grid-cols-3">
-              <form onSubmit={handleSubmit} className="space-y-4 p-6 md:col-span-2">
-                {checkoutProduct && (
-                  <div className="rounded-md bg-brand-gray p-3 text-sm">
-                    <div className="font-semibold text-brand-navy">{checkoutProduct.name}</div>
-                    <div className="text-xs text-muted-foreground">{checkoutProduct.price}</div>
-                  </div>
-                )}
-                <div>
-                  <label className="mb-1 block text-sm font-medium">Operadora</label>
-                  <select
-                    value={form.operador}
-                    onChange={(e) => setForm({ ...form, operador: e.target.value })}
-                    className="w-full rounded-md border border-input bg-white px-3 py-2 text-sm"
-                  >
-                    <option>PERSONAL CARD POS-PAGO</option>
-                    <option>PERSONAL CARD PRE-PAGO</option>
-                    <option>TRIO CARD POS-PAGO</option>
-                    <option>TRIO CARD PRE-PAGO</option>
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-1 block text-sm font-medium">Valor da transação</label>
-                    <input
-                      type="text"
-                      value={form.valor}
-                      onChange={(e) => setForm({ ...form, valor: e.target.value })}
-                      placeholder="0,00"
-                      className="w-full rounded-md border border-input px-3 py-2 text-sm"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium">Condição</label>
-                    <select
-                      value={form.condicao}
-                      onChange={(e) => setForm({ ...form, condicao: e.target.value })}
-                      className="w-full rounded-md border border-input bg-white px-3 py-2 text-sm"
-                      required
-                    >
-                      <option value="">Selecione</option>
-                      {Array.from({ length: 12 }, (_, n) => (
-                        <option key={n + 1} value={n + 1}>{n + 1}x</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="rounded-md border border-brand-navy/30 bg-brand-navy/5 p-3">
-                  <div className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-navy">
-                    Dados do Cartão
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="mb-1 block text-xs font-medium">CPF *</label>
-                      <input
-                        type="text"
-                        value={form.cpf}
-                        onChange={(e) => setForm({ ...form, cpf: e.target.value.replace(/\D/g, "").slice(0, 11) })}
-                        placeholder="00000000000"
-                        inputMode="numeric"
-                        maxLength={11}
-                        className="w-full rounded-md border border-input px-3 py-2 text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-xs font-medium">Número do cartão *</label>
-                      <input
-                        type="text"
-                        value={form.cartaoNumero}
-                        onChange={(e) => setForm({ ...form, cartaoNumero: e.target.value.replace(/\D/g, "").slice(0, 19) })}
-                        placeholder="0000 0000 0000 0000"
-                        inputMode="numeric"
-                        className="w-full rounded-md border border-input px-3 py-2 text-sm"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="mb-1 block text-xs font-medium">Validade (MM/AA) *</label>
-                        <input
-                          type="text"
-                          value={form.cartaoValidade}
-                          onChange={(e) => {
-                            let v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                            if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2);
-                            setForm({ ...form, cartaoValidade: v });
-                          }}
-                          placeholder="MM/AA"
-                          maxLength={5}
-                          className="w-full rounded-md border border-input px-3 py-2 text-sm"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="mb-1 block text-xs font-medium">CVV *</label>
-                        <input
-                          type="text"
-                          value={form.cartaoCvv}
-                          onChange={(e) => setForm({ ...form, cartaoCvv: e.target.value.replace(/\D/g, "").slice(0, 4) })}
-                          placeholder="000"
-                          inputMode="numeric"
-                          maxLength={4}
-                          className="w-full rounded-md border border-input px-3 py-2 text-sm"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-brand-navy">Informe um e-mail para receber a confirmação da transação (Opcional)</label>
-                  <input
-                    type="email"
-                    value={form.emailConfirmacao}
-                    onChange={(e) => setForm({ ...form, emailConfirmacao: e.target.value })}
-                    className="w-full rounded-md border border-input px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-brand-navy">Informe um e-mail para enviar o link (Opcional)</label>
-                  <input
-                    type="email"
-                    value={form.emailLink}
-                    onChange={(e) => setForm({ ...form, emailLink: e.target.value })}
-                    className="w-full rounded-md border border-input px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-brand-navy">Código do pedido (Opcional. Será enviado nos e-mails)</label>
-                  <input
-                    type="text"
-                    value={form.codigoPedido}
-                    onChange={(e) => setForm({ ...form, codigoPedido: e.target.value })}
-                    className="w-full rounded-md border border-input px-3 py-2 text-sm"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex w-full items-center justify-center gap-2 rounded-md bg-brand-navy px-5 py-2 text-sm font-bold text-brand-navy-foreground hover:opacity-90 disabled:opacity-60"
-                >
-                  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {submitting ? "Enviando..." : "Gerar link de transação"}
-                </button>
-              </form>
-              <aside className="border-t border-border bg-brand-gray p-6 text-sm md:border-l md:border-t-0">
-                <div className="text-center font-bold text-brand-navy">M DA C PEREIRA COMERCIO ME</div>
-                <div className="mt-3 space-y-1 text-brand-navy">
-                  <div className="font-semibold">BM VARIEDADES</div>
-                  <div>CNPJ: 36.111.681/0001-02</div>
-                  <div>ESTR. DO ALVARENGA, 3056</div>
-                  <div>BALNEARIO SAO FRANCISCO</div>
-                  <div>SAO PAULO</div>
-                  <div>SP</div>
-                </div>
-              </aside>
-            </div>
+      {added && (
+        <div className="fixed bottom-4 right-4 z-50 flex w-80 items-start gap-3 rounded-lg border border-brand-navy/20 bg-white p-4 shadow-2xl">
+          <ShoppingCart className="h-5 w-5 shrink-0 text-green-600" />
+          <div className="flex-1">
+            <div className="text-sm font-bold text-brand-navy">Adicionado ao carrinho</div>
+            <div className="line-clamp-2 text-xs text-muted-foreground">{added}</div>
+            <Link to="/carrinho" className="mt-2 inline-block text-xs font-semibold text-brand-navy underline hover:no-underline">
+              Ver carrinho →
+            </Link>
           </div>
-        </div>
-      )}
-
-      {/* Toast: pedido criado com sucesso */}
-      {lastOrder && (
-        <div className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border border-brand-navy/20 bg-white p-4 shadow-2xl">
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
-            <div className="flex-1">
-              <div className="text-sm font-bold text-brand-navy">Pedido criado!</div>
-              <div className="text-xs text-muted-foreground">Número: {lastOrder.number}</div>
-              <div className="mt-1 text-xs text-muted-foreground">
-                Estamos processando. Atualize a página em alguns segundos para ver o status.
-              </div>
-              <div className="mt-3 flex gap-2">
-                <button
-                  onClick={() => {
-                    setTrackId(lastOrder.id);
-                    handleTrack(lastOrder.id);
-                  }}
-                  className="text-xs font-semibold text-brand-navy underline hover:no-underline"
-                >
-                  Acompanhar agora
-                </button>
-                <button
-                  onClick={() => setLastOrder(null)}
-                  className="text-xs text-muted-foreground underline hover:no-underline"
-                >
-                  Fechar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Rastreio de pedido */}
-      <section className="border-y border-border bg-brand-gray">
-        <div className="mx-auto max-w-3xl px-4 py-10">
-          <div className="mb-4 flex items-center gap-2 text-brand-navy">
-            <Search className="h-5 w-5" />
-            <h2 className="text-lg font-bold">Acompanhar seu pedido</h2>
-          </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleTrack();
-            }}
-            className="flex flex-col gap-3 sm:flex-row"
-          >
-            <input
-              type="text"
-              value={trackId}
-              onChange={(e) => setTrackId(e.target.value)}
-              placeholder="Cole aqui o ID do pedido (aparece após criar)"
-              className="flex-1 rounded-md border border-input bg-white px-3 py-2 text-sm"
-            />
-            <button
-              type="submit"
-              disabled={tracking}
-              className="flex items-center justify-center gap-2 rounded-md bg-brand-navy px-5 py-2 text-sm font-bold text-brand-navy-foreground hover:opacity-90 disabled:opacity-60"
-            >
-              {tracking && <Loader2 className="h-4 w-4 animate-spin" />}
-              Buscar
-            </button>
-          </form>
-
-          {tracked && (
-            <TrackResult
-              tracked={tracked}
-              onConfirm={handleConfirmPayment}
-              confirming={confirming}
-            />
-          )}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function TrackResult({
-  tracked,
-  onConfirm,
-  confirming,
-}: {
-  tracked: {
-    id: string;
-    number: string;
-    status: string;
-    valor: number;
-    criadoEm: string;
-    processadoEm: string | null;
-    obs: string | null;
-    link: string | null;
-  };
-  onConfirm: () => void;
-  confirming: boolean;
-}) {
-  const map: Record<
-    string,
-    { label: string; color: string; icon: React.ReactNode }
-  > = {
-    aguardando_operador: {
-      label: "Aguardando processamento",
-      color: "bg-yellow-100 text-yellow-800",
-      icon: <Clock className="h-5 w-5" />,
-    },
-    processando: {
-      label: "Gerando link de pagamento",
-      color: "bg-blue-100 text-blue-800",
-      icon: <Loader2 className="h-5 w-5 animate-spin" />,
-    },
-    link_gerado: {
-      label: "Link gerado - clique pra pagar",
-      color: "bg-purple-100 text-purple-800",
-      icon: <CreditCard className="h-5 w-5" />,
-    },
-    processado: {
-      label: "Pagamento confirmado!",
-      color: "bg-green-100 text-green-800",
-      icon: <CheckCircle2 className="h-5 w-5" />,
-    },
-    falha: {
-      label: "Pagamento não aprovado",
-      color: "bg-red-100 text-red-800",
-      icon: <XCircle className="h-5 w-5" />,
-    },
-    nao_encontrado: {
-      label: "Pedido não encontrado",
-      color: "bg-gray-100 text-gray-800",
-      icon: <XCircle className="h-5 w-5" />,
-    },
-  };
-  const s = map[tracked.status] ?? map.aguardando_operador;
-
-  return (
-    <div className="mt-5 rounded-lg border border-border bg-white p-5">
-      <div className="flex items-center gap-3">
-        <div className={`rounded-full p-2 ${s.color}`}>{s.icon}</div>
-        <div className="flex-1">
-          <div className="text-base font-bold text-brand-navy">{s.label}</div>
-          <div className="text-xs text-muted-foreground">
-            Pedido: {tracked.number} · Valor: R${" "}
-            {Number(tracked.valor).toFixed(2).replace(".", ",")}
-          </div>
-        </div>
-      </div>
-
-      {/* Link de pagamento - aparece quando o bot gera */}
-      {tracked.status === "link_gerado" && tracked.link && (
-        <div className="mt-4 rounded-md border-2 border-brand-navy/30 bg-brand-navy/5 p-4">
-          <div className="mb-2 text-sm font-bold text-brand-navy">
-            👇 Clique no botão abaixo pra pagar no site oficial da DuePay:
-          </div>
-          <a
-            href={tracked.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full rounded-md bg-brand-navy px-5 py-3 text-center text-sm font-bold text-brand-navy-foreground hover:opacity-90"
-          >
-            PAGAR COM DUEPAY →
-          </a>
-          <div className="mt-2 text-xs text-muted-foreground">
-            O link abre no site da Personal Card. Lá você digita cartão e PIN.
-          </div>
-        </div>
-      )}
-
-      {/* Botão de confirmação manual - aparece quando o link foi gerado OU se o cliente diz que já pagou */}
-      {(tracked.status === "link_gerado" || tracked.status === "processando") && (
-        <div className="mt-4 rounded-md border border-border bg-brand-gray p-3">
-          <div className="text-xs text-muted-foreground">
-            Já pagou? Após confirmar no portal da Personal Card, marque aqui:
-          </div>
-          <button
-            onClick={onConfirm}
-            disabled={confirming}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-md border-2 border-brand-navy bg-white px-4 py-2 text-sm font-bold text-brand-navy hover:bg-brand-navy hover:text-brand-navy-foreground disabled:opacity-60"
-          >
-            {confirming && <Loader2 className="h-4 w-4 animate-spin" />}
-            ✓ Já fiz o pagamento, confirmar
-          </button>
-        </div>
-      )}
-
-      {tracked.obs && (
-        <div className="mt-3 rounded-md bg-brand-gray p-3 text-xs text-muted-foreground">
-          {tracked.obs}
-        </div>
-      )}
-      {(tracked.status === "aguardando_operador" ||
-        tracked.status === "processando" ||
-        tracked.status === "link_gerado") && (
-        <div className="mt-3 text-xs text-muted-foreground">
-          Esta tela atualiza sozinha a cada 5 segundos.
         </div>
       )}
     </div>
