@@ -92,14 +92,27 @@ function CarrinhoPage() {
                   <span>Itens ({cart.count})</span>
                   <span>{formatBRL(cart.total)}</span>
                 </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Frete</span>
-                  <span>Grátis</span>
-                </div>
-                <div className="border-t border-border pt-3 flex justify-between text-base font-extrabold text-brand-navy">
-                  <span>Total</span>
-                  <span>{formatBRL(cart.total)}</span>
-                </div>
+                {(() => {
+                  const frete = cart.total <= 140 ? 15 : 0;
+                  const total = cart.total + frete;
+                  return (
+                    <>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Frete</span>
+                        <span>{frete === 0 ? "Grátis" : formatBRL(frete)}</span>
+                      </div>
+                      {frete > 0 && (
+                        <div className="text-[11px] text-muted-foreground">
+                          Frete grátis em compras acima de {formatBRL(140)}.
+                        </div>
+                      )}
+                      <div className="border-t border-border pt-3 flex justify-between text-base font-extrabold text-brand-navy">
+                        <span>Total</span>
+                        <span>{formatBRL(total)}</span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
               <button
                 onClick={() => navigate({ to: "/checkout" })}
