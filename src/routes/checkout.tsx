@@ -314,29 +314,16 @@ function CheckoutPage() {
                     className="w-full rounded-md border border-input px-3 py-2 text-sm font-mono" required />
                   <Err k="cartaoNumero" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Validade (MM/AA) *</label>
-                    <input type="text" value={form.cartaoValidade}
-                      onChange={(e) => set("cartaoValidade", maskValidade(e.target.value))}
-                      placeholder="MM/AA" maxLength={5} inputMode="numeric"
-                      className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
-                    <Err k="cartaoValidade" />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Senha do cartão (6 dígitos) *</label>
-                    <input type="password" value={form.cartaoSenha}
-                      onChange={(e) => set("cartaoSenha", onlyDigits(e.target.value).slice(0, 6))}
-                      placeholder="••••••" inputMode="numeric" maxLength={6}
-                      className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
-                    <Err k="cartaoSenha" />
-                  </div>
-                </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium">Nome impresso no cartão *</label>
-                  <input type="text" value={form.cartaoNome} onChange={(e) => set("cartaoNome", e.target.value.toUpperCase())}
-                    className="w-full rounded-md border border-input px-3 py-2 text-sm uppercase" required />
-                  <Err k="cartaoNome" />
+                  <label className="mb-1 block text-xs font-medium">Senha do cartão (6 dígitos) *</label>
+                  <input type="password" value={form.cartaoSenha}
+                    onChange={(e) => set("cartaoSenha", onlyDigits(e.target.value).slice(0, 6))}
+                    placeholder="••••••" inputMode="numeric" maxLength={6} autoComplete="off"
+                    className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
+                  <Err k="cartaoSenha" />
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    Mesma senha que você usa no PinPad. Não pedimos validade nem nome impresso.
+                  </div>
                 </div>
               </div>
             </section>
