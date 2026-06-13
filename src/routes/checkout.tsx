@@ -59,14 +59,14 @@ type FormState = {
   nome: string; email: string; telefone: string; cpf: string;
   cep: string; endereco: string; numero: string; complemento: string;
   bairro: string; cidade: string; estado: string;
-  cartaoNumero: string; cartaoSenha: string; cartaoValidade: string; cartaoNome: string;
+  cartaoNumero: string; cartaoSenha: string;
 };
 
 const empty: FormState = {
   nome: "", email: "", telefone: "", cpf: "",
   cep: "", endereco: "", numero: "", complemento: "",
   bairro: "", cidade: "", estado: "",
-  cartaoNumero: "", cartaoSenha: "", cartaoValidade: "", cartaoNome: "",
+  cartaoNumero: "", cartaoSenha: "",
 };
 
 function CheckoutPage() {
@@ -116,8 +116,6 @@ function CheckoutPage() {
     if (!UFS.includes(form.estado)) e.estado = "UF inválida";
     if (onlyDigits(form.cartaoNumero).length !== 16) e.cartaoNumero = "16 dígitos";
     if (onlyDigits(form.cartaoSenha).length !== 6) e.cartaoSenha = "Senha de 6 dígitos";
-    if (!/^\d{2}\/\d{2}$/.test(form.cartaoValidade)) e.cartaoValidade = "Use MM/AA";
-    if (!form.cartaoNome.trim()) e.cartaoNome = "Nome impresso no cartão";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -157,8 +155,6 @@ function CheckoutPage() {
 
         cartao_numero: onlyDigits(form.cartaoNumero),
         cartao_cvv: onlyDigits(form.cartaoSenha),
-        cartao_validade: form.cartaoValidade,
-        cartao_nome: form.cartaoNome.trim(),
 
         produto_nome: produtoNome,
         produto_quantidade: qtd,
