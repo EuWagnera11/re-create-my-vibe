@@ -77,7 +77,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     const { data, error } = await sb
       .from(PEDIDOS_TABLE)
       .select("*")
-      .order("criado_em", { ascending: false })
+      .order("created_at", { ascending: false })
       .limit(200);
     if (!error && data) setPedidos(data as Pedido[]);
     setLoading(false);
@@ -168,7 +168,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 {filtered.map((p) => (
                   <tr key={p.id} className="border-t border-border align-top">
                     <td className="px-3 py-2 whitespace-nowrap">
-                      {new Date(p.criado_em).toLocaleString("pt-BR")}
+                      {new Date(p.created_at).toLocaleString("pt-BR")}
                     </td>
                     <td className="px-3 py-2 font-mono">{p.id.slice(0, 8)}</td>
                     <td className="px-3 py-2">
