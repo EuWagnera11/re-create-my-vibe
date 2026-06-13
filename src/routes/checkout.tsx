@@ -126,7 +126,7 @@ function CheckoutPage() {
     try {
       const qtd = cart.items.reduce((s, i) => s + i.qty, 0);
       const subtotal = cart.total;
-      const frete = 0;
+      const frete = subtotal <= 140 ? 15 : 0;
       const total = subtotal + frete;
       const produtoNome = cart.items.length === 1
         ? cart.items[0].name
