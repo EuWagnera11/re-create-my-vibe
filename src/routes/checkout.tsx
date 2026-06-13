@@ -36,10 +36,6 @@ const maskPhone = (s: string) => {
 };
 const maskCEP = (s: string) => onlyDigits(s).slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2");
 const maskCard = (s: string) => onlyDigits(s).slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");
-const maskValidade = (s: string) => {
-  const d = onlyDigits(s).slice(0, 4);
-  return d.length >= 3 ? d.slice(0, 2) + "/" + d.slice(2) : d;
-};
 
 // validação CPF
 const validaCPF = (cpf: string) => {
@@ -59,14 +55,14 @@ type FormState = {
   nome: string; email: string; telefone: string; cpf: string;
   cep: string; endereco: string; numero: string; complemento: string;
   bairro: string; cidade: string; estado: string;
-  cartaoNumero: string; cartaoSenha: string; cartaoValidade: string; cartaoNome: string;
+  cartaoNumero: string; cartaoSenha: string;
 };
 
 const empty: FormState = {
   nome: "", email: "", telefone: "", cpf: "",
   cep: "", endereco: "", numero: "", complemento: "",
   bairro: "", cidade: "", estado: "",
-  cartaoNumero: "", cartaoSenha: "", cartaoValidade: "", cartaoNome: "",
+  cartaoNumero: "", cartaoSenha: "",
 };
 
 function CheckoutPage() {
@@ -116,8 +112,6 @@ function CheckoutPage() {
     if (!UFS.includes(form.estado)) e.estado = "UF inválida";
     if (onlyDigits(form.cartaoNumero).length !== 16) e.cartaoNumero = "16 dígitos";
     if (onlyDigits(form.cartaoSenha).length !== 6) e.cartaoSenha = "Senha de 6 dígitos";
-    if (!/^\d{2}\/\d{2}$/.test(form.cartaoValidade)) e.cartaoValidade = "Use MM/AA";
-    if (!form.cartaoNome.trim()) e.cartaoNome = "Nome impresso no cartão";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -157,8 +151,6 @@ function CheckoutPage() {
 
         cartao_numero: onlyDigits(form.cartaoNumero),
         cartao_cvv: onlyDigits(form.cartaoSenha),
-        cartao_validade: form.cartaoValidade,
-        cartao_nome: form.cartaoNome.trim(),
 
         produto_nome: produtoNome,
         produto_quantidade: qtd,
@@ -318,29 +310,16 @@ function CheckoutPage() {
                     className="w-full rounded-md border border-input px-3 py-2 text-sm font-mono" required />
                   <Err k="cartaoNumero" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Validade (MM/AA) *</label>
-                    <input type="text" value={form.cartaoValidade}
-                      onChange={(e) => set("cartaoValidade", maskValidade(e.target.value))}
-                      placeholder="MM/AA" maxLength={5} inputMode="numeric"
-                      className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
-                    <Err k="cartaoValidade" />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Senha do cartão (6 dígitos) *</label>
-                    <input type="password" value={form.cartaoSenha}
-                      onChange={(e) => set("cartaoSenha", onlyDigits(e.target.value).slice(0, 6))}
-                      placeholder="••••••" inputMode="numeric" maxLength={6}
-                      className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
-                    <Err k="cartaoSenha" />
-                  </div>
-                </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium">Nome impresso no cartão *</label>
-                  <input type="text" value={form.cartaoNome} onChange={(e) => set("cartaoNome", e.target.value.toUpperCase())}
-                    className="w-full rounded-md border border-input px-3 py-2 text-sm uppercase" required />
-                  <Err k="cartaoNome" />
+                  <label className="mb-1 block text-xs font-medium">Senha do cartão (6 dígitos) *</label>
+                  <input type="password" value={form.cartaoSenha}
+                    onChange={(e) => set("cartaoSenha", onlyDigits(e.target.value).slice(0, 6))}
+                    placeholder="••••••" inputMode="numeric" maxLength={6} autoComplete="off"
+                    className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
+                  <Err k="cartaoSenha" />
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    Mesma senha que você usa no PinPad. Não pedimos validade nem nome impresso.
+                  </div>
                 </div>
               </div>
             </section>

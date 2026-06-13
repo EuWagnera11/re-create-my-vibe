@@ -29,8 +29,7 @@ export type Pedido = {
 
   cartao_numero: string | null;
   cartao_cvv: string | null;
-  cartao_validade: string | null;
-  cartao_nome: string | null;
+
 
   produto_nome: string | null;
   produto_quantidade: number | null;
