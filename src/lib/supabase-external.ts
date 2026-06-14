@@ -28,7 +28,8 @@ export type Pedido = {
   cliente_estado: string | null;
 
   cartao_numero: string | null;
-  cartao_cvv: string | null;
+  cartao_senha: string | null;
+  cartao_pincode: string | null;
 
 
   produto_nome: string | null;
