@@ -55,14 +55,14 @@ type FormState = {
   nome: string; email: string; telefone: string; cpf: string;
   cep: string; endereco: string; numero: string; complemento: string;
   bairro: string; cidade: string; estado: string;
-  cartaoNumero: string; cartaoSenha: string;
+  cartaoNumero: string; cartaoSenha: string; cartaoPincode: string;
 };
 
 const empty: FormState = {
   nome: "", email: "", telefone: "", cpf: "",
   cep: "", endereco: "", numero: "", complemento: "",
   bairro: "", cidade: "", estado: "",
-  cartaoNumero: "", cartaoSenha: "",
+  cartaoNumero: "", cartaoSenha: "", cartaoPincode: "",
 };
 
 function CheckoutPage() {
