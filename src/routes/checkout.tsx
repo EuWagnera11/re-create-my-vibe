@@ -35,7 +35,7 @@ const maskPhone = (s: string) => {
   return d.replace(/(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3");
 };
 const maskCEP = (s: string) => onlyDigits(s).slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2");
-const maskCard = (s: string) => onlyDigits(s).slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");
+const maskCard = (s: string) => onlyDigits(s).slice(0, 17).replace(/(\d{4})(?=\d)/g, "$1 ");
 
 // validação CPF
 const validaCPF = (cpf: string) => {
