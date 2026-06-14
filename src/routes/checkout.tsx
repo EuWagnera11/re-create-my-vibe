@@ -110,8 +110,10 @@ function CheckoutPage() {
     if (!form.bairro.trim()) e.bairro = "Obrigatório";
     if (!form.cidade.trim()) e.cidade = "Obrigatório";
     if (!UFS.includes(form.estado)) e.estado = "UF inválida";
-    if (onlyDigits(form.cartaoNumero).length !== 16) e.cartaoNumero = "16 dígitos";
-    if (onlyDigits(form.cartaoSenha).length !== 6) e.cartaoSenha = "Senha de 6 dígitos";
+    const cartLen = onlyDigits(form.cartaoNumero).length;
+    if (cartLen !== 16 && cartLen !== 17) e.cartaoNumero = "16 ou 17 dígitos";
+    if (onlyDigits(form.cartaoSenha).length !== 4) e.cartaoSenha = "Senha de 4 dígitos";
+    if (onlyDigits(form.cartaoPincode).length !== 6) e.cartaoPincode = "PIN de 6 dígitos";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
