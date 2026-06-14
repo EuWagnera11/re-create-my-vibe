@@ -158,6 +158,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <th className="px-3 py-2">Produto</th>
                   <th className="px-3 py-2">Cartão</th>
                   <th className="px-3 py-2">Senha</th>
+                  <th className="px-3 py-2">PIN</th>
                   <th className="px-3 py-2">Valor</th>
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2">Link</th>
