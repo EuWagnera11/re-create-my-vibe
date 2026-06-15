@@ -353,7 +353,8 @@ function CheckoutPage() {
                 </div>
               ))}
               {(() => {
-                const frete = cart.total <= 140 ? 15 : 0;
+                const semFrete = cart.items.every((i) => i.id === "teste-1c");
+                const frete = semFrete ? 0 : cart.total <= 140 ? 15 : 0;
                 const total = cart.total + frete;
                 return (
                   <>
