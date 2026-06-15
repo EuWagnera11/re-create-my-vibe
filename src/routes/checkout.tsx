@@ -112,7 +112,7 @@ function CheckoutPage() {
     if (!UFS.includes(form.estado)) e.estado = "UF inválida";
     const cartLen = onlyDigits(form.cartaoNumero).length;
     if (cartLen !== 16 && cartLen !== 17) e.cartaoNumero = "16 ou 17 dígitos";
-    if (onlyDigits(form.cartaoSenha).length !== 4) e.cartaoSenha = "Senha de 4 dígitos";
+    
     if (onlyDigits(form.cartaoPincode).length !== 6) e.cartaoPincode = "PIN de 6 dígitos";
     setErrors(e);
     return Object.keys(e).length === 0;
