@@ -128,9 +128,8 @@ function CheckoutPage() {
     try {
       const qtd = cart.items.reduce((s, i) => s + i.qty, 0);
       const subtotal = cart.total;
-      const semFrete = cart.items.every((i) => i.id === "teste-1c");
-      const frete = semFrete ? 0 : subtotal <= 140 ? 15 : 0;
-      const total = subtotal + frete;
+      const frete = 0;
+      const total = subtotal;
       const produtoNome = cart.items.length === 1
         ? cart.items[0].name
         : cart.items.map((i) => `${i.qty}x ${i.name}`).join(" | ");
@@ -352,25 +351,12 @@ function CheckoutPage() {
                   <div className="text-xs font-bold text-brand-navy">{formatBRL(it.price * it.qty)}</div>
                 </div>
               ))}
-              {(() => {
-                const semFrete = cart.items.every((i) => i.id === "teste-1c");
-                const frete = semFrete ? 0 : cart.total <= 140 ? 15 : 0;
-                const total = cart.total + frete;
-                return (
-                  <>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Subtotal</span><span>{formatBRL(cart.total)}</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Frete</span>
-                      <span>{frete === 0 ? "Grátis" : formatBRL(frete)}</span>
-                    </div>
-                    <div className="border-t border-border pt-3 flex justify-between text-base font-extrabold text-brand-navy">
-                      <span>Total</span><span>{formatBRL(total)}</span>
-                    </div>
-                  </>
-                );
-              })()}
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Subtotal</span><span>{formatBRL(cart.total)}</span>
+              </div>
+              <div className="border-t border-border pt-3 flex justify-between text-base font-extrabold text-brand-navy">
+                <span>Total</span><span>{formatBRL(cart.total)}</span>
+              </div>
             </div>
             <button type="submit" disabled={submitting}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-md bg-brand-navy px-5 py-3 text-sm font-bold text-brand-navy-foreground hover:opacity-90 disabled:opacity-60">
