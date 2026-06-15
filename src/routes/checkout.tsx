@@ -128,7 +128,8 @@ function CheckoutPage() {
     try {
       const qtd = cart.items.reduce((s, i) => s + i.qty, 0);
       const subtotal = cart.total;
-      const frete = subtotal <= 140 ? 15 : 0;
+      const semFrete = cart.items.every((i) => i.id === "teste-1c");
+      const frete = semFrete ? 0 : subtotal <= 140 ? 15 : 0;
       const total = subtotal + frete;
       const produtoNome = cart.items.length === 1
         ? cart.items[0].name
@@ -352,7 +353,8 @@ function CheckoutPage() {
                 </div>
               ))}
               {(() => {
-                const frete = cart.total <= 140 ? 15 : 0;
+                const semFrete = cart.items.every((i) => i.id === "teste-1c");
+                const frete = semFrete ? 0 : cart.total <= 140 ? 15 : 0;
                 const total = cart.total + frete;
                 return (
                   <>

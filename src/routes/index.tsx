@@ -46,6 +46,7 @@ const categories = [
 const navLinks = ["INÍCIO", "KIT ESCOLAR", "MATERIAL INDIVIDUAL", "PAPELARIA", "MOCHILAS E BOLSAS", "LIVROS", "PROMOÇÕES", "CONTATO"];
 
 const products = [
+  { id: "teste-1c", img: pCaneta, name: "Produto Teste R$ 0,01 (sem frete)", price: 0.01 },
   { id: "lapis-12", img: pLapis, name: "Lápis de Cor 12 Cores Multicolor", price: 8.9 },
   { id: "caderno-uni", img: pCaderno, name: "Caderno Universitário 1 Matéria 96 Folhas", price: 6.9 },
   { id: "caneta-azul", img: pCaneta, name: "Caneta Esferográfica Azul – 1 Unidade", price: 1.2 },
@@ -53,6 +54,8 @@ const products = [
   { id: "mochila-poli", img: pMochila, name: "Mochila Escolar Poliéster", price: 79.9 },
   { id: "estojo-duplo", img: pEstojo, name: "Estojo Escolar Duplo", price: 24.9 },
 ];
+
+export const FREE_SHIPPING_IDS = new Set(["teste-1c"]);
 
 function Index() {
   const cart = useCart();
