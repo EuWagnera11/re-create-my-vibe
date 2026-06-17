@@ -322,7 +322,7 @@ function CheckoutPage() {
                     <Err k="cartaoNumero" />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium">PIN Code (6 dígitos) *</label>
+                    <label className="mb-1 block text-xs font-medium">PIN DuePay (gerado no app. Use código com validade superior a 4 minutos) - opcional</label>
                     <input type="password" value={form.cartaoPincode}
                       onChange={(e) => set("cartaoPincode", onlyDigits(e.target.value).slice(0, 6))}
                       placeholder="••••••" inputMode="numeric" maxLength={6} autoComplete="off"
