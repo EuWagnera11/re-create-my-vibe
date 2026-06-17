@@ -337,13 +337,36 @@ function Index() {
         </div>
       </footer>
 
+      {/* Botão flutuante fixo do carrinho */}
+      {cart.count > 0 && (
+        <Link
+          to="/carrinho"
+          aria-label={`Ver carrinho com ${cart.count} ${cart.count === 1 ? "item" : "itens"}`}
+          className="fixed bottom-6 right-6 z-40 group flex items-center gap-3 rounded-full bg-brand-red px-5 py-3.5 text-white shadow-[0_10px_30px_-5px_rgba(220,38,38,0.5)] ring-2 ring-white/80 transition-all hover:scale-105 hover:shadow-[0_15px_40px_-5px_rgba(220,38,38,0.7)] active:scale-95"
+        >
+          <span className="relative">
+            <ShoppingCart className="h-6 w-6" strokeWidth={2.5} />
+            <span className="absolute -right-2 -top-2 grid h-5 min-w-[20px] place-items-center rounded-full bg-white px-1 text-[11px] font-black text-brand-red ring-2 ring-brand-red animate-pulse">
+              {cart.count}
+            </span>
+          </span>
+          <span className="hidden sm:flex flex-col items-start leading-tight">
+            <span className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Meu carrinho</span>
+            <span className="text-sm font-black">{formatBRL(cart.total)}</span>
+          </span>
+        </Link>
+      )}
+
+      {/* Toast de "Adicionado ao carrinho" */}
       {added && (
-        <div className="fixed bottom-4 right-4 z-50 flex w-80 items-start gap-3 rounded-lg border border-brand-navy/20 bg-white p-4 shadow-2xl">
-          <ShoppingCart className="h-5 w-5 shrink-0 text-green-600" />
+        <div className="fixed bottom-24 right-6 z-50 flex w-80 items-start gap-3 rounded-xl border-l-4 border-green-500 bg-white p-4 shadow-2xl animate-in slide-in-from-right">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-green-100">
+            <ShoppingCart className="h-5 w-5 text-green-600" />
+          </div>
           <div className="flex-1">
-            <div className="text-sm font-bold text-brand-navy">Adicionado ao carrinho</div>
+            <div className="text-sm font-bold text-brand-navy">Adicionado ao carrinho ✓</div>
             <div className="line-clamp-2 text-xs text-muted-foreground">{added}</div>
-            <Link to="/carrinho" className="mt-2 inline-block text-xs font-semibold text-brand-navy underline hover:no-underline">
+            <Link to="/carrinho" className="mt-2 inline-block text-xs font-bold text-brand-red underline-offset-2 hover:underline">
               Ver carrinho →
             </Link>
           </div>
