@@ -301,7 +301,7 @@ function Index() {
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500">
               <svg viewBox="0 0 24 24" className="h-5 w-5 fill-white"><path d="M20 3.5A11.5 11.5 0 003.5 19.7L2 22l2.5-1.3A11.5 11.5 0 1020 3.5zM12 21a9 9 0 01-4.6-1.3l-.3-.2-2.5.7.7-2.4-.2-.3A9 9 0 1112 21z"/></svg>
             </div>
-            <div className="text-xl font-extrabold">(11) 3397-0505</div>
+            <div className="text-xl font-extrabold">(11) 4172-1088</div>
           </div>
           <p className="mt-3 text-xs opacity-80">Segunda a sexta, das 8h às 17h</p>
         </div>
@@ -321,7 +321,7 @@ function Index() {
           <div>
             <div className="mb-3 text-xs font-bold tracking-wider">ATENDIMENTO</div>
             <ul className="space-y-1.5 text-xs opacity-90">
-              <li>📞 (11) 3397-0505</li>
+              <li>📞 (11) 4172-1088</li>
               <li>✉ atendimento@bmvariedades.com.br</li>
               <li>Seg a Sex das 8h às 17h</li>
             </ul>
