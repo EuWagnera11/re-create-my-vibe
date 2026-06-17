@@ -112,13 +112,18 @@ function Index() {
           </div>
 
           <div className="ml-auto flex items-center gap-6">
-            <button className="flex items-center gap-2 text-sm">
+            <a
+              href="https://wa.me/551141721088?text=Quero%20rastrear%20meu%20pedido"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm"
+            >
               <User className="h-6 w-6 text-brand-navy" />
               <div className="leading-tight text-left">
-                <div className="font-semibold">Entrar</div>
-                <div className="text-xs text-muted-foreground">Minha conta</div>
+                <div className="font-semibold">Rastrear Pedido</div>
+                <div className="text-xs text-muted-foreground">via WhatsApp</div>
               </div>
-            </button>
+            </a>
             <Link to="/carrinho" className="flex items-center gap-2 text-sm">
               <div className="relative">
                 <ShoppingCart className="h-6 w-6 text-brand-navy" />
