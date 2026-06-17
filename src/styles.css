@@ -81,3 +81,11 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
+
+@keyframes pin-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+.animate-pin-blink {
+  animation: pin-blink 0.8s ease-in-out infinite;
+}

